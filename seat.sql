@@ -1,0 +1,34 @@
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+CREATE DATABASE IF NOT EXISTS `event_management` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `event_management`;
+
+DROP TABLE IF EXISTS `seat`;
+CREATE TABLE IF NOT EXISTS `seat` (
+  `event_id` INT NOT NULL,
+  `seat_id` INT NOT NULL,
+  `seat_status` ENUM('available', 'booked', 'reserved', 'unavailable') NOT NULL DEFAULT 'available',
+  PRIMARY KEY (`event_id`, `seat_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO seat (event_id, seat_id, seat_status) VALUES
+(1, 1, 'available'),
+(1, 2, 'booked'),
+(2, 1, 'available'),
+(2, 2, 'reserved'),
+(3, 1, 'unavailable');
+
+
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
