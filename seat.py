@@ -29,16 +29,8 @@ class Seat(db.Model):
 
 
 
-@app.route("/seats")
-def get_all_seats():
-    event_id = request.args.get("event_id")
-
-    if event_id is None:
-        return jsonify({
-            "code": 400,
-            "message": "Event ID is missing."
-        }), 400
-
+@app.route("/seats/<string:event_id>")
+def get_all_seats(event_id):
     seat_list = Seat.query.filter_by(event_id=event_id).all()
 
     if seat_list:
