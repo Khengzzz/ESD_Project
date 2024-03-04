@@ -49,17 +49,25 @@ def get_all_seats(event_id):
 
 
 
-@app.route("/reserveseats", methods=["PUT"])
-def reserve_seats():
-    event_id = request.args.get("event_id")
-    seat_ids = request.args.getlist("seat_id")
+@app.route("/reserveseats/<event_id>", methods=["PUT"])
+def reserve_seats(event_id):
+    data = request.json
+
+    if not data or "seat_ids" not in data:
+        return jsonify({
+            "code": 400,
+            "message": "No seat IDs provided."
+        }), 400
+
+    seat_ids = data["seat_ids"]
 
     if not seat_ids:
         return jsonify({
             "code": 400,
-            "message": "No seat provided."
+            "message": "No seat IDs provided."
         }), 400
 
+    # Check if all seats are available
     for seat_id in seat_ids:
         seat = Seat.query.filter_by(event_id=event_id, seat_id=seat_id).first()
 
@@ -69,6 +77,7 @@ def reserve_seats():
                 "message": f"Seat {seat_id} is not available."
             }), 400
 
+    # If all seats are available, reserve them
     for seat_id in seat_ids:
         seat = Seat.query.filter_by(event_id=event_id, seat_id=seat_id).first()
         seat.seat_status = "reserved"
@@ -82,20 +91,35 @@ def reserve_seats():
 
 
 
-@app.route("/bookseats", methods=["PUT"])
-def book_seats():
-    event_id = request.args.get("event_id")
-    seat_ids = request.args.getlist("seat_id")
+@app.route("/bookseats/<event_id>", methods=["PUT"])
+def book_seats(event_id):
+    data = request.json
+
+    if not data or "seat_ids" not in data:
+        return jsonify({
+            "code": 400,
+            "message": "No seat IDs provided."
+        }), 400
+
+    seat_ids = data["seat_ids"]
 
     if not seat_ids:
         return jsonify({
             "code": 400,
-            "message": "No seat provided."
+            "message": "No seat IDs provided."
         }), 400
 
+    # Check if all seats are reserved
     for seat_id in seat_ids:
         seat = Seat.query.filter_by(event_id=event_id, seat_id=seat_id).first()
 
+        if not seat or seat.seat_status != "reserved":
+            return jsonify({
+                "code": 400,
+                "message": f"Seat {seat_id} is not reserved."
+            }), 400
+
+    # If all seats are reserved, book them
     for seat_id in seat_ids:
         seat = Seat.query.filter_by(event_id=event_id, seat_id=seat_id).first()
         seat.seat_status = "booked"
@@ -109,20 +133,35 @@ def book_seats():
 
 
 
-@app.route("/refundseats", methods=["PUT"])
-def refund_seats():
-    event_id = request.args.get("event_id")
-    seat_ids = request.args.getlist("seat_id")
+@app.route("/refundseats/<event_id>", methods=["PUT"])
+def refund_seats(event_id):
+    data = request.json
+
+    if not data or "seat_ids" not in data:
+        return jsonify({
+            "code": 400,
+            "message": "No seat IDs provided."
+        }), 400
+
+    seat_ids = data["seat_ids"]
 
     if not seat_ids:
         return jsonify({
             "code": 400,
-            "message": "No seat provided."
+            "message": "No seat IDs provided."
         }), 400
 
+    # Check if all seats are booked
     for seat_id in seat_ids:
         seat = Seat.query.filter_by(event_id=event_id, seat_id=seat_id).first()
 
+        if not seat or seat.seat_status != "booked":
+            return jsonify({
+                "code": 400,
+                "message": f"Seat {seat_id} is not booked."
+            }), 400
+
+    # If all seats are booked, refund them
     for seat_id in seat_ids:
         seat = Seat.query.filter_by(event_id=event_id, seat_id=seat_id).first()
         seat.seat_status = "available"

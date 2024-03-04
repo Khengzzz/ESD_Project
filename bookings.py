@@ -21,7 +21,7 @@ class Bookings(db.Model):
     refund_transaction_id = db.Column(db.String(255))
     creation_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, user_id, event_id, seat_id, booking_status, payment_transaction_id, payment_status, refund_transaction_id, creation_timestamp):
+    def __init__(self, user_id, event_id, seat_id, booking_status='Pending', payment_transaction_id=None, payment_status=None, refund_transaction_id=None, creation_timestamp=datetime.utcnow()):
         self.user_id = user_id
         self.event_id = event_id
         self.seat_id = seat_id
@@ -30,7 +30,7 @@ class Bookings(db.Model):
         self.payment_status = payment_status
         self.refund_transaction_id = refund_transaction_id
         self.creation_timestamp = creation_timestamp
-        # booking id not included as it is auto incremented
+
 
     def json(self):
         return {
@@ -60,6 +60,42 @@ def get_all_bookings():
             "code": 404,
             "message": "There are no bookings."
         }), 404
+
+
+
+
+@app.route("/bookings", methods=["POST"])
+def create_booking():
+    user_id = request.args.get("user_id")
+    event_id = request.args.get("event_id")
+    data = request.json
+
+    if not all([user_id, event_id, data]):
+        return jsonify({
+            "code": 400,
+            "message": "Incomplete data provided."
+        }), 400
+
+    seat_ids = data.get("seat_ids")
+
+    if not seat_ids:
+        return jsonify({
+            "code": 400,
+            "message": "No seat IDs provided."
+        }), 400
+
+    new_booking = Bookings(user_id=user_id, event_id=event_id, seat_id=seat_ids)
+    db.session.add(new_booking)
+    db.session.commit()
+
+    return jsonify({
+        "code": 201,
+        "message": "Booking created successfully.",
+        "data": new_booking.json()
+    }), 201
+
+
+
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
