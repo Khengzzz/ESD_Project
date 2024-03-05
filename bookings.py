@@ -63,7 +63,7 @@ def get_all_bookings():
 
 
 
-
+#when booking is first created, booking status will be pending
 @app.route("/bookings", methods=["POST"])
 def create_booking():
     user_id = request.args.get("user_id")
@@ -84,7 +84,7 @@ def create_booking():
             "message": "No seat IDs provided."
         }), 400
 
-    new_booking = Bookings(user_id=user_id, event_id=event_id, seat_id=seat_ids)
+    new_booking = Bookings(user_id=user_id, event_id=event_id, seat_id=seat_ids, booking_status='Pending')
     db.session.add(new_booking)
     db.session.commit()
 
