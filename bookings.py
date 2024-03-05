@@ -94,7 +94,99 @@ def create_booking():
         "data": new_booking.json()
     }), 201
 
+# payment is successful --> booking is successful, record is updated - to test
+@app.route("/bookings/<int:booking_id>/success", methods=["PUT"])
+def update_booking_success(booking_id):
+    booking = Bookings.query.get(booking_id)
 
+    if not booking:
+        return jsonify({
+            "code": 404,
+            "message": "Booking not found."
+        }), 404
+
+    data = request.json
+
+    if not data or "payment_transaction_id" not in data:
+        return jsonify({
+            "code": 400,
+            "message": "Payment transaction ID is missing."
+        }), 400
+
+    payment_transaction_id = data.get("payment_transaction_id")
+
+    booking.payment_transaction_id = payment_transaction_id
+    booking.booking_status = "Confirmed"
+    booking.payment_status = "Succeeded"
+
+    db.session.commit()
+
+    return jsonify({
+        "code": 200,
+        "message": "Booking status updated successfully.",
+        "data": booking.json()
+    }), 200
+
+# refund requested - to test
+@app.route("/bookings/<int:booking_id>/refund/request", methods=["PUT"])
+def request_refund(booking_id):
+    booking = Bookings.query.get(booking_id)
+
+    if not booking:
+        return jsonify({
+            "code": 404,
+            "message": "Booking not found."
+        }), 404
+
+    if booking.booking_status != "Confirmed":
+        return jsonify({
+            "code": 400,
+            "message": "Refund can only be requested for confirmed bookings."
+        }), 400
+
+    booking.booking_status = "Pending"
+    booking.payment_status = "Pending"  
+    # need to include refund id --> to generate since we do not have a pre defined data for that for each refund
+
+    db.session.commit()
+
+    return jsonify({
+        "code": 200,
+        "message": "Refund requested successfully.",
+        "data": booking.json()
+    }), 200
+
+
+# refund processed and is successful - to test
+@app.route("/bookings/<int:booking_id>/refund/success", methods=["PUT"])
+def confirm_refund(booking_id):
+    booking = Bookings.query.get(booking_id)
+
+    if not booking:
+        return jsonify({
+            "code": 404,
+            "message": "Booking not found."
+        }), 404
+
+    if booking.booking_status != "Pending":
+        return jsonify({
+            "code": 400,
+            "message": "Refund can only be confirmed for bookings with pending refunds. Please request for a refund first."
+        }), 400
+
+    refund_id = request.json.get("refund_id")  
+    booking.refund_id = refund_id #to retrieve from point of request, above route
+
+    booking.booking_status = "Successful"
+    booking.payment_status = "Refunded"
+
+    db.session.commit()
+
+    return jsonify({
+        "code": 200,
+        "message": "Refund successful.",
+        "data": booking.json()
+    }), 200
 
 
 if __name__ == '__main__':
