@@ -174,8 +174,8 @@ def confirm_refund(booking_id):
             "message": "Refund can only be confirmed for bookings with pending refunds. Please request for a refund first."
         }), 400
 
-    refund_id = request.json.get("refund_id")  
-    booking.refund_id = refund_id #to retrieve from point of request, above route
+    refund_transaction_id = request.json.get("refund_transaction_id")  
+    booking.refund_transaction_id = refund_transaction_id #to retrieve from point of request, above route
 
     booking.booking_status = "Successful"
     booking.payment_status = "Refunded"
