@@ -14,14 +14,14 @@ class Subscription(db.Model):
     __tablename__ = 'subscription'
 
 
-    event_id = db.Column(db.Integer, primary_key=True)
+    screening_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, primary_key=True)
     notification_status = db.Column(db.Enum('Pending', 'Notified'), nullable=False, default='Pending')
     creation_timestamp = db.Column(db.TIMESTAMP, default=datetime.utcnow)
 
 
-    def __init__(self, event_id, user_id, notification_status, creation_timestamp):
-        self.event_id = event_id
+    def __init__(self, screening_id, user_id, notification_status, creation_timestamp):
+        self.screening_id = screening_id
         self.user_id = user_id
         self.notification_status = notification_status
         self.creation_timestamp = creation_timestamp
@@ -29,16 +29,16 @@ class Subscription(db.Model):
 
     def json(self):
         return {
-            "event_id": self.event_id, 
+            "screening_id": self.screening_id, 
             "user_id": self.user_id, 
             "notification_status": self.notification_status, 
             "creation_timestamp": self.creation_timestamp.isoformat()
         }
 
 
-@app.route("/subscriptions/<string:event_id>")
-def get_subscribers_by_event(event_id):
-    subscriber_list = Subscription.query.filter_by(event_id=event_id).all()
+@app.route("/subscriptions/<string:screening_id>")
+def get_subscribers_by_screening(screening_id):
+    subscriber_list = Subscription.query.filter_by(screening_id=screening_id).all()
 
     if subscriber_list:
         return jsonify({
@@ -55,10 +55,10 @@ def get_subscribers_by_event(event_id):
 
 @app.route("/subscribe", methods=['POST'])
 def subscribe_user():
-    event_id = request.args.get("event_id")
+    screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")
     if (db.session.scalars(
-      db.select(Subscription).filter_by(event_id=event_id, user_id=user_id).
+      db.select(Subscription).filter_by(screening_id=screening_id, user_id=user_id).
       limit(1)
       ).first()
       ):
@@ -66,7 +66,7 @@ def subscribe_user():
             {
                 "code": 400,
                 "data": {
-                    "event_id": event_id,
+                    "screening_id": screening_id,
                     "user_id": user_id
                 },
                 "message": "User already subscribed to the event."
@@ -75,7 +75,7 @@ def subscribe_user():
 
 
     data = request.get_json()
-    user_subscription = Subscription(event_id, user_id, **data)
+    user_subscription = Subscription(screening_id, user_id, **data)
 
 
     try:
@@ -86,7 +86,7 @@ def subscribe_user():
             {
                 "code": 500,
                 "data": {
-                    "event_id": event_id,
+                    "screening_id": screening_id,
                     "user_id": user_id
                 },
                 "message": "An error occurred in subscribing the user."
@@ -103,11 +103,11 @@ def subscribe_user():
 
 @app.route("/unsubscribe", methods=['DELETE'])
 def unsubscribe_user():
-    event_id = request.args.get("event_id")
+    screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")
 
     existing_subscription = db.session.scalars(
-        db.select(Subscription).filter_by(event_id=event_id, user_id=user_id).limit(1)
+        db.select(Subscription).filter_by(screening_id=screening_id, user_id=user_id).limit(1)
     ).first()
 
     if existing_subscription:
@@ -118,7 +118,7 @@ def unsubscribe_user():
                 {
                     "code": 200,
                     "data": {
-                        "event_id": event_id,
+                        "screening_id": screening_id,
                         "user_id": user_id
                     },
                     "message": "User successfully unsubscribed from the event."
@@ -129,7 +129,7 @@ def unsubscribe_user():
                 {
                     "code": 500,
                     "data": {
-                        "event_id": event_id,
+                        "screening_id": screening_id,
                         "user_id": user_id
                     },
                     "message": f"An error occurred in unsubscribing the user: {str(e)}"
@@ -140,7 +140,7 @@ def unsubscribe_user():
             {
                 "code": 400,
                 "data": {
-                    "event_id": event_id,
+                    "screening_id": screening_id,
                     "user_id": user_id
                 },
                 "message": "Subscription does not exist."

@@ -8,19 +8,19 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
-CREATE DATABASE IF NOT EXISTS `subscription` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `subscription`;
+CREATE DATABASE IF NOT EXISTS `subscriber` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `subscriber`;
 
-DROP TABLE IF EXISTS `subscription`;
-CREATE TABLE IF NOT EXISTS `subscription` (
-  `event_id` INT NOT NULL,
+DROP TABLE IF EXISTS `subscriber`;
+CREATE TABLE IF NOT EXISTS `subscriber` (
+  `screening_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   `notification_status` ENUM('Pending', 'Notified') NOT NULL DEFAULT 'Pending',
   `creation_timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`event_id`, `user_id`)
+  PRIMARY KEY (`screening_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `subscription` (`event_id`, `user_id`, `notification_status`) VALUES
+INSERT INTO `subscriber` (`screening_id`, `user_id`, `notification_status`) VALUES
 (1, 1, 'Pending'),
 (1, 2, 'Notified'),
 (1, 3, 'Pending'),
