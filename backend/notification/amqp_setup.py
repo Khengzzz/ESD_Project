@@ -4,8 +4,10 @@ from os import environ
 
 hostname = "localhost"  # default hostname
 port = 5672             # default port
-exchangename = "notifications_topic"  # exchange name
+exchangename = "payment_topic"  # exchange name
+exchangename2 = "refund_direct" 
 exchangetype = "topic"  # use a 'topic' exchange to enable interaction
+exchangetype2 = "direct"
 
 def create_connection(max_retries=12, retry_interval=5):
     print('amqp_setup:create_connection')
@@ -33,21 +35,58 @@ def create_connection(max_retries=12, retry_interval=5):
 def create_channel(connection):
     print('amqp_setup:create_channel')
     channel = connection.channel()
+    # Set up the exchange if the exchange doesn't exist
     print('amqp_setup:create exchange')
-    channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype, durable=True)
+    channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype, durable=True) # 'durable' makes the exchange survive broker restarts
     return channel
 
+# Function to create queues
 def create_queues(channel):
-    print('amqp_setup:create queues')
-    create_notification_queue(channel)
+    print('amqp_setup:create_queues')
+    create_success_queue(channel)
+    create_failure_queue(channel)
 
-def create_notification_queue(channel):
-    print('amqp_setup:create_notification_queue')
-    notification_queue_name = 'Notification_Queue'
+# Function to create Success_Queue
+def create_success_queue(channel):
+    print('amqp_setup:create_success_queue')
+    a_queue_name = 'Success_Queue'
+    channel.queue_declare(queue=a_queue_name, durable=True) # 'durable' makes the queue survive broker restarts
+    channel.queue_bind(exchange=exchangename, queue=a_queue_name, routing_key='*.success')
+
+# Function to create Failure_Queue
+def create_failure_queue(channel):
+    print('amqp_setup:create_failure_queue')
+    notification_queue_name = 'Failure_Queue'
     channel.queue_declare(queue=notification_queue_name, durable=True)
-    channel.queue_bind(exchange=exchangename, queue=notification_queue_name, routing_key='#')
+    channel.queue_bind(exchange=exchangename, queue=notification_queue_name, routing_key='*.failure')
+
+
+def create_channel2(connection):
+    print('amqp_setup:create_channel2')
+    channel = connection.channel()
+    # Set up the exchange if the exchange doesn't exist
+    print('amqp_setup:create exchange2')
+    channel.exchange_declare(exchange=exchangename2, exchange_type=exchangetype2, durable=True) # 'durable' makes the exchange survive broker restarts
+    return channel
+
+# Function to create queues for exchange 2
+def create_queues2(channel):
+    print('amqp_setup:create_queues2')
+    create_refund_queue(channel)
+
+# Function to create Refund_Queue
+def create_refund_queue(channel):
+    print('amqp_setup:create_refund_queue')
+    refund_queue_name = 'Refund_Queue'
+    channel.queue_declare(queue=refund_queue_name, durable=True) # 'durable' makes the queue survive broker restarts
+    channel.queue_bind(exchange=exchangename2, queue=refund_queue_name, routing_key='#')
 
 if __name__ == "__main__":
     connection = create_connection()
     channel = create_channel(connection)
     create_queues(channel)
+    
+    # For exchange 2 (refund_direct)
+    channel2 = create_channel2(connection)
+    create_queues2(channel2)
+
