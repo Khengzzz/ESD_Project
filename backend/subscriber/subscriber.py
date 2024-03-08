@@ -50,7 +50,7 @@ def get_subscribers_by_screening(screening_id):
     else:
         return jsonify({
             "code": 404,
-            "message": f"There are no subscribers for the event."
+            "message": f"There are no subscribers for the movie screening."
         }), 404
 
 @app.route("/subscribe", methods=['POST'])
@@ -69,7 +69,7 @@ def subscribe_user():
                     "screening_id": screening_id,
                     "user_id": user_id
                 },
-                "message": "User already subscribed to the event."
+                "message": "User already subscribed to the movie screening."
             }
         ), 400
 
@@ -121,7 +121,7 @@ def unsubscribe_user():
                         "screening_id": screening_id,
                         "user_id": user_id
                     },
-                    "message": "User successfully unsubscribed from the event."
+                    "message": "User successfully unsubscribed from the movie screening."
                 }
             ), 200
         except Exception as e:

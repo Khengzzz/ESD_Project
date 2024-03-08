@@ -49,16 +49,16 @@ def create_queues(channel):
 # Function to create Success_Queue
 def create_success_queue(channel):
     print('amqp_setup:create_success_queue')
-    a_queue_name = 'Success_Queue'
-    channel.queue_declare(queue=a_queue_name, durable=True) # 'durable' makes the queue survive broker restarts
-    channel.queue_bind(exchange=exchangename, queue=a_queue_name, routing_key='*.success')
+    success_queue_name = 'Success_Queue'
+    channel.queue_declare(queue=success_queue_name, durable=True) # 'durable' makes the queue survive broker restarts
+    channel.queue_bind(exchange=exchangename, queue=success_queue_name, routing_key='*.success')
 
 # Function to create Failure_Queue
 def create_failure_queue(channel):
     print('amqp_setup:create_failure_queue')
-    notification_queue_name = 'Failure_Queue'
-    channel.queue_declare(queue=notification_queue_name, durable=True)
-    channel.queue_bind(exchange=exchangename, queue=notification_queue_name, routing_key='*.failure')
+    failure_queue_name = 'Failure_Queue'
+    channel.queue_declare(queue=failure_queue_name, durable=True)
+    channel.queue_bind(exchange=exchangename, queue=failure_queue_name, routing_key='*.failure')
 
 
 def create_channel2(connection):
