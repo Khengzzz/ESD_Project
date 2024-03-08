@@ -18,32 +18,65 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-class Transaction(db.Model):
+class Transactions(db.Model):
     transaction_id = db.Column(db.String(255), primary_key=True)
     booking_id = db.Column(db.Integer, nullable=False)
     transaction_amount = db.Column(db.Numeric(10, 2), nullable=False)
-    transaction_status = db.Column(Enum('succeeded', 'refunded', name='transaction_status_enum'), default='succeeded', nullable=False)
+    transaction_status = db.Column(Enum('succeeded', 'refunded', name='transaction_status'), default='succeeded', nullable=False)
     payment_date_time = db.Column(db.DateTime, nullable=False)
     creation_date_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
+
+#write to db method
+def add_transaction_to_database(transaction_id,booking_id, transaction_amount, payment_date_time):
+# Create an instance of the Transaction model
+    new_transaction = Transactions(
+    transaction_id=transaction_id,
+    booking_id=booking_id,
+    transaction_amount=transaction_amount,
+    transaction_status="succeeded",
+    payment_date_time=payment_date_time
+)
+    return new_transaction
 # Call from booking
     
-def getBookingId(bookingId):
-    #call booking, retrieve booking id to get charge id
-    placeholderJson=bookingId
 
-    #then return charge id
-    charge_id=""
-    return charge_id
-
-def getTicketQuantity():
-    #ticketAmount calls from request
-
-    #placeholder quantity val
-    quantity=2
+def getTicketQuantity(information):
+    
+    quantity=information['quantity']
     ticket_cost=1500
     total_amount= ticket_cost*quantity
     return total_amount
+
+#get data from book microservice
+testNewTransaction= 'http://127.0.0.1:5100/data'
+testRefund='http://127.0.0.1:5200/refundNo'
+def callUrl(url):
+      # Replace with actual address
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        information = response.json()
+        print("information is:")
+        print(information)
+        print()
+        # Use the received information here (e.g., render in a template)
+        return information
+    else:
+        
+        print(f"Error retrieving information: {response.status_code}")
+
+
+#get charge_id from booking_id
+def get_transaction_id_by_booking_id(booking_id):
+# Query the database to get the transaction_id based on booking_id
+    result = Transactions.query.filter_by(booking_id=booking_id).first()
+
+# Check if a result was found
+    if result:
+        return result
+    else:
+        return None  
 
 
 # Stripe charge functions
@@ -76,17 +109,19 @@ def retrieve_refund(refund_id):
 # app routes
 @app.route('/')
 def index():
-
-    amount=getTicketQuantity()
-    return render_template('index.html',total_amount=amount)
+    information=callUrl(testNewTransaction)
+    amount=getTicketQuantity(information)
+    booking_id=information["booking_id"]
+    return render_template('index.html',total_amount=amount,booking_id=booking_id)
 
 @app.route('/charge', methods=['POST'])
 
 
 
 def charge():
+    information=callUrl(testNewTransaction)
     token = request.form.get('stripeToken')
-    amount=getTicketQuantity()
+    amount=request.form.get("amount")
     currency = request.form.get('currency')
 
     try:
@@ -101,9 +136,40 @@ def charge():
 
     # Retrieve the charge object
     charge_details = retrieve_charge(charge.id)
+    charge_id=charge_details.id
+    booking_id=request.form.get('booking_id')
+    current_time=datetime.utcnow()
+    print(charge_id)
+    print(amount)
+    print(booking_id)
+
+    new_transaction =add_transaction_to_database(charge_id,booking_id,amount,current_time)
+    db.session.add(new_transaction)
+    db.session.commit()
 
     # Pass charge_details to the success template
     return redirect(url_for('success', charge_id=charge.id))
+
+
+@app.route("/refund-test")
+def refund_test():
+    return render_template('refund-test.html')
+
+
+
+@app.route("/refund_no_ui",methods=["POST"])
+def refund_no_ui():
+    
+    booking_id = request.form.get('booking_id')
+    print(booking_id)
+    transaction = Transactions.query.filter_by(booking_id=booking_id).first()
+    refund = refund_charge(transaction.transaction_id)
+    if refund:
+        transaction.transaction_status = 'refunded'
+        db.session.commit()
+        return redirect(url_for('refund_success', refund_id=refund.id))
+    print(transaction.transaction_id)
+    
 
 
 

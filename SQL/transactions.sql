@@ -7,17 +7,17 @@ START TRANSACTION;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
-CREATE DATABASE IF NOT EXISTS 'transactions' DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE 'transactions';
+CREATE DATABASE IF NOT EXISTS transactions DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE transactions;
 
-DROP TABLE IF EXISTS 'transactions';
-CREATE TABLE IF NOT EXISTS 'transactions' (
-  'transaction_id' VARCHAR(255) NOT NULL,
-  'booking_id' INT NOT NULL,
-  'transaction_amount' DECIMAL(10,2) NOT NULL,
-  'tranasction_status' ENUM('succeeded', 'refunded') NOT NULL DEFAULT 'succeeded',
-  'payment_date_time' DATETIME NOT NULL,
-  'creation_date_time' DATETIME NOT NULL,
+DROP TABLE IF EXISTS transactions;
+CREATE TABLE IF NOT EXISTS transactions (
+  transaction_id VARCHAR(255) NOT NULL,
+  booking_id INT NOT NULL,
+  transaction_amount DECIMAL(10,2) NOT NULL,
+  transaction_status ENUM('succeeded', 'refunded') NOT NULL DEFAULT 'succeeded',
+  payment_date_time DATETIME NOT NULL,
+  creation_date_time DATETIME NOT NULL,
   PRIMARY KEY (`transaction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

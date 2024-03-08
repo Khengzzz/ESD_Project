@@ -1,20 +1,21 @@
 
 from flask import Flask, render_template, request, jsonify
-import stripe
+import stripe,sqlalchemy
 import requests
+from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
 
-url = 'http://127.0.0.1:5100/data'  # Replace with actual address
-response = requests.get(url)
+# url = 'http://127.0.0.1:5100/data'  # Replace with actual address
+# response = requests.get(url)
 
-if response.status_code == 200:
-    information = response.json()
-    # Use the received information here (e.g., render in a template)
-    print(information)
-else:
+# if response.status_code == 200:
+#     information = response.json()
+#     # Use the received information here (e.g., render in a template)
+#     print(information)
+# else:
     
-    print(f"Error retrieving information: {response.status_code}")
+#     print(f"Error retrieving information: {response.status_code}")
 
 @app.route('/')
 def checkout():
@@ -27,9 +28,10 @@ stripe.api_key = "sk_test_51OoQM4Db6e0xe0n3x00YdJ2FapLr7NZ9XTms5vOb6z64T38InsHjH
 def charge():
     website = ''
     json_response = ''
+    # Amount in cents
     amount=int(information['age']) * 100 
     try:
-        # Amount in cents
+        
         
 
         # Creating a customer
@@ -45,6 +47,11 @@ def charge():
             description='Flask Charge'
         )
 
+# 
+        # Send reponse to this actual file
+        # "/bookings/<int:booking_id>/success"
+
+        # Placeholder
         response = requests.post(
             'http://127.0.0.1:5004/receive_transaction_id',  # Replace with receiver app URL
             json={'transaction_id': charge.id}

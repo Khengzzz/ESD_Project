@@ -5,7 +5,7 @@ app = Flask(__name__)
 @app.route('/data')
 def send_data():
     # Replace with your logic to generate the data
-    data = { 'quantity': 2,}
+    data = { 'quantity': 2,'booking_id':4}
     
     # Convert data to JSON
     response = jsonify(data)
