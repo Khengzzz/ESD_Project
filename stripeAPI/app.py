@@ -147,10 +147,12 @@ def charge():
     db.session.add(new_transaction)
     db.session.commit()
 
+    #send json to whatever url
     # Pass charge_details to the success template
     return redirect(url_for('success', charge_id=charge.id))
 
 
+#for testing purposes
 @app.route("/refund-test")
 def refund_test():
     return render_template('refund-test.html')
@@ -160,15 +162,20 @@ def refund_test():
 @app.route("/refund_no_ui",methods=["POST"])
 def refund_no_ui():
     
-    booking_id = request.form.get('booking_id')
-    print(booking_id)
+    # booking_id = request.form.get('booking_id')
+    # print(booking_id)
+
+    #get json from refund orchestrator,put in actual url
+    booking_id=_requests.get(url)
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
     refund = refund_charge(transaction.transaction_id)
     if refund:
         transaction.transaction_status = 'refunded'
         db.session.commit()
-        return redirect(url_for('refund_success', refund_id=refund.id))
-    print(transaction.transaction_id)
+
+        # return json of refund id
+        return jsonify(refund.id)
+
     
 
 
