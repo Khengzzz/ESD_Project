@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify,redirect,url_for
 import stripe
 import json
 import requests
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Enum
 from datetime import datetime
@@ -79,6 +80,11 @@ def get_transaction_id_by_booking_id(booking_id):
         return None  
 
 
+#convert to utc time
+def convert_unix_to_utc(unix_timestamp):
+    utc_datetime = datetime.utcfromtimestamp(unix_timestamp)
+    return utc_datetime
+
 # Stripe charge functions
 def retrieve_charge(charge_id):
     try:
@@ -138,19 +144,28 @@ def charge():
     charge_details = retrieve_charge(charge.id)
     charge_id=charge_details.id
     booking_id=request.form.get('booking_id')
-    current_time=datetime.utcnow()
+    unix_timestamp=charge_details.created
+    current_time_utc=convert_unix_to_utc(unix_timestamp)
     print(charge_id)
     print(amount)
     print(booking_id)
 
-    new_transaction =add_transaction_to_database(charge_id,booking_id,amount,current_time)
+    new_transaction =add_transaction_to_database(charge_id,booking_id,amount,current_time_utc)
     db.session.add(new_transaction)
     db.session.commit()
+    
+    #json data format
+    data_to_send= {
+        "charge":charge_details,
 
-    #send json to whatever url
-    # Pass charge_details to the success template
-    return redirect(url_for('success', charge_id=charge.id))
+    }
+    #send json to whatever url orchestrator is at
+    if requests.post(url, json=data_to_send)
 
+        # Pass charge_details to the success template
+        return redirect(url_for('success', charge_id=charge.id))
+    else:
+         return redirect(url_for('error'))
 
 #for testing purposes
 @app.route("/refund-test")
@@ -158,7 +173,7 @@ def refund_test():
     return render_template('refund-test.html')
 
 
-
+#refund json
 @app.route("/refund_no_ui",methods=["POST"])
 def refund_no_ui():
     
@@ -166,7 +181,7 @@ def refund_no_ui():
     # print(booking_id)
 
     #get json from refund orchestrator,put in actual url
-    booking_id=_requests.get(url)
+    booking_id=requests.get(url, json=data_to_send)
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
     refund = refund_charge(transaction.transaction_id)
     if refund:
