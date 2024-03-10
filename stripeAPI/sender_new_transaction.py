@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 
+#used for testing
 app = Flask(__name__)
 
 @app.route('/data')

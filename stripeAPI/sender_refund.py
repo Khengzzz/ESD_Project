@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
+#used for testing
 @app.route('/refundNo.')
 def send_data():
     # Replace with your logic to generate the data
