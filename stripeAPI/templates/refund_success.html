@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Successful</title>
+</head>
+<body>
+    <h1>Refund Successful</h1>
+    <p>Your refund has been successfully processed.</p>
+    
+    <h2>Refund Details</h2>
+    <p>Refund ID: {{ refund.id }}</p>
+    <p>Amount: {{ refund.amount / 100 }} {{ refund.currency.upper() }}</p>
+    <p>Status: {{ refund.status }}</p>
+    <p>{{ refund }}</p>
+    <!-- Add more details as needed -->
+</body>
+</html>
