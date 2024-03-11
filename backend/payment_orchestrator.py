@@ -9,17 +9,17 @@ CORS(app)
 seat_URL = "http://127.0.0.1:5000/manage_seats/{screening_id}/book"
 booking_URL = "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
 
-@app.route("/payment/<screening_id>/<booking_id>/<transaction_id>", methods=['POST'])
-def processPayment(screening_id, booking_id,transaction_id):
+@app.route("/payment/<screening_id>/<booking_id>", methods=['POST'])
+def processPayment(screening_id, booking_id):
     # Simple check of input format and data of the request are JSON
     if request.is_json:
         try:
-            seat_ids = request.get_json()
+            data = request.get_json()
 
             print("\nReceived screening ID:", screening_id)
-            print("Received seat IDs:", seat_ids)
+            print("Received seat IDs:", data)
 
-            result = updateOrder(screening_id, seat_ids, booking_id, transaction_id)
+            result = updateOrder(screening_id, data, booking_id)
             return jsonify(result)
 
         except Exception as e:
@@ -41,17 +41,19 @@ def processPayment(screening_id, booking_id,transaction_id):
     }), 400
 
 
-def updateOrder(screening_id, seat_ids, booking_id, transaction_id):
+def updateOrder(screening_id, data, booking_id):
     try:
         # 2. Send the order info {cart items}
         # Invoke the seat microservice
         print('\n-----Invoking seat microservice-----')
         # Send request to seat microservice
+        seat_ids = data["seat_ids"]
         seat_url = seat_URL.format(screening_id=screening_id)
-        seat_result = invoke_http(seat_url, method='PUT', json=seat_ids)
+        seat_result = invoke_http(seat_url, method='PUT', json={"seat_ids":seat_ids})
         print('result:', seat_result)
 
         # Send request to booking confirmation endpoint
+        transaction_id = data["charge_details"]["id"]
         booking_url = booking_URL.format(booking_id=booking_id)
         booking_result = invoke_http(booking_url, method='PUT', json={"booking_id": booking_id,
                                                                         "payment_transaction_id": transaction_id})
