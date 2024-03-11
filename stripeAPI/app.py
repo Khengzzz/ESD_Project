@@ -160,12 +160,12 @@ def charge():
 
     }
     #send json to whatever url orchestrator is at
-    if requests.post(url, json=data_to_send)
+    if requests.post(url, json=data_to_send):
 
         # Pass charge_details to the success template
         return redirect(url_for('success', charge_id=charge.id))
     else:
-         return redirect(url_for('error'))
+        return redirect(url_for('error'))
 
 #for testing purposes
 @app.route("/refund-test")
