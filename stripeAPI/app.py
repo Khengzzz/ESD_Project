@@ -120,7 +120,7 @@ def index():
     booking_id=information["booking_id"]
     return render_template('index.html',total_amount=amount,booking_id=booking_id)
 
-@app.route('/success', methods=['POST'])
+@app.route('/charge', methods=['POST'])
 
 def charge():
     information=callUrl(testNewTransaction)
@@ -157,13 +157,13 @@ def charge():
     #     "charge":charge_details,
 
     # }
-    # #send json to whatever url orchestrator is at
-    # #if requests.post(, json=data_to_send):
-    
+    #send json to whatever url orchestrator is at
+    # if requests.post(url, json=data_to_send)
 
         # Pass charge_details to the success template
     return redirect(url_for('success', charge_id=charge.id))
-
+    # else:
+    #      return redirect(url_for('error'))
 
 #for testing purposes
 @app.route("/refund-test")
@@ -187,7 +187,7 @@ def refund_no_ui():
         db.session.commit()
 
         # return json of refund id
-        return jsonify(refund.id)
+        return jsonify(refund)
 
     
 
