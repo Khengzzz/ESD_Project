@@ -120,7 +120,7 @@ def index():
     booking_id=information["booking_id"]
     return render_template('index.html',total_amount=amount,booking_id=booking_id)
 
-@app.route('/charge', methods=['POST'])
+@app.route('/payment/<booking_id>', methods=['POST'])
 
 def charge():
     information=callUrl(testNewTransaction)
@@ -139,10 +139,10 @@ def charge():
         return redirect(url_for('error'))
 
     # Retrieve the charge object
-    charge_details = retrieve_charge(charge.id)
-    charge_id=charge_details.id
+    charge_object = retrieve_charge(charge.id)
+    charge_id=charge_object.id
     booking_id=request.form.get('booking_id')
-    unix_timestamp=charge_details.created
+    unix_timestamp=charge_object.created
     current_time_utc=convert_unix_to_utc(unix_timestamp)
     print(charge_id)
     print(amount)
@@ -153,17 +153,15 @@ def charge():
     db.session.commit()
     
     #json data format
-    # data_to_send= {
-    #     "charge":charge_details,
+    data_to_send= {
+        "charge":charge_object,
+        "booking_id":booking_id
 
-    # }
+    }
     #send json to whatever url orchestrator is at
     # if requests.post(url, json=data_to_send)
 
-        # Pass charge_details to the success template
-    return redirect(url_for('success', charge_id=charge.id))
-    # else:
-    #      return redirect(url_for('error'))
+    return jsonify(data_to_send) 
 
 #for testing purposes
 @app.route("/refund-test")
@@ -211,8 +209,8 @@ def refund(charge_id):
 @app.route("/success")
 def success():
     charge_id = request.args.get('charge_id')
-    charge_details = retrieve_charge(charge_id)
-    return render_template("success.html", charge_details=charge_details)
+    charge_object = retrieve_charge(charge_id)
+    return render_template("success.html", charge_object=charge_object)
 
 
 
