@@ -122,7 +122,7 @@ def index():
 
 @app.route('/payment/<booking_id>', methods=['POST'])
 
-def charge():
+def charge(booking_id):
     information=callUrl(testNewTransaction)
     token = request.form.get('stripeToken')
     amount=request.form.get("amount")
@@ -155,7 +155,6 @@ def charge():
     #json data format
     data_to_send= {
         "charge":charge_object,
-        "booking_id":booking_id
 
     }
     #send json to whatever url orchestrator is at
@@ -170,8 +169,8 @@ def refund_test():
 
 
 #refund json
-@app.route("/refund_no_ui",methods=["POST"])
-def refund_no_ui():
+@app.route("/refund/<booking_id>",methods=["POST"])
+def refund_no_ui(booking_id):
     
     # booking_id = request.form.get('booking_id')
     # print(booking_id)
@@ -183,9 +182,11 @@ def refund_no_ui():
     if refund:
         transaction.transaction_status = 'refunded'
         db.session.commit()
-
+        data_to_send= {
+        "refund":transaction
+        }
         # return json of refund id
-        return jsonify(refund)
+        return jsonify(data_to_send)
 
     
 
