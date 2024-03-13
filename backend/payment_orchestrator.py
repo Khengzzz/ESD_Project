@@ -7,23 +7,18 @@ app = Flask(__name__)
 CORS(app)
 
 seat_URL = "http://127.0.0.1:5000/manage_seats/{screening_id}/book"
-booking_URL = "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
+booking_URL_get_booking = "http://127.0.0.1:5001/bookings/{booking_id}"
+booking_URL_confirm = "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
 
-@app.route("/payment/<screening_id>/<booking_id>", methods=['POST'])
-def processPayment(screening_id, booking_id):
-    # Simple check of input format and data of the request are JSON
+@app.route("/payment/<booking_id>", methods=['POST'])
+def processPayment(booking_id):
     if request.is_json:
         try:
-            data = request.get_json()
-
-            print("\nReceived screening ID:", screening_id)
-            print("Received seat IDs:", data)
-
-            result = updateOrder(screening_id, data, booking_id)
+            charge_details = request.get_json()
+            result = updateOrder(booking_id, charge_details)
             return jsonify(result)
 
         except Exception as e:
-            # Unexpected error in code
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
@@ -34,38 +29,39 @@ def processPayment(screening_id, booking_id):
                 "message": "payment_orchestrator.py internal error: " + ex_str
             }), 500
 
-    # if reached here, not a JSON request.
     return jsonify({
         "code": 400,
         "message": "Invalid JSON input: " + str(request.get_data())
     }), 400
 
 
-def updateOrder(screening_id, data, booking_id):
+def updateOrder(booking_id, charge_details):
     try:
-        # 2. Send the order info {cart items}
-        # Invoke the seat microservice
-        print('\n-----Invoking seat microservice-----')
-        # Send request to seat microservice
-        seat_ids = data["seat_ids"]
+        print('\n-----Invoking bookings microservice-----')
+
+        get_booking_URL = booking_URL_get_booking.format(booking_id=booking_id)
+        booking_details = invoke_http(get_booking_URL, method='GET')
+
+        screening_id = booking_details["data"]["screening_id"]
+        seat_ids = booking_details["data"]["seat_id"]
+
         seat_url = seat_URL.format(screening_id=screening_id)
-        seat_result = invoke_http(seat_url, method='PUT', json={"seat_ids":seat_ids})
+        seat_result = invoke_http(seat_url, method='PUT', json={"seat_ids": seat_ids})
         print('result:', seat_result)
 
-        # Send request to booking confirmation endpoint
-        transaction_id = data["charge_details"]["id"]
-        booking_url = booking_URL.format(booking_id=booking_id)
-        booking_result = invoke_http(booking_url, method='PUT', json={"booking_id": booking_id,
-                                                                        "payment_transaction_id": transaction_id})
+
+        transaction_id = charge_details["id"]
+        confirm_booking_URL = booking_URL_confirm.format(booking_id=booking_id)
+        booking_result = invoke_http(confirm_booking_URL, method='PUT', json={"booking_id": booking_id,
+                                                                                "payment_transaction_id": transaction_id})
         print('booking result:', booking_result)
 
         return {
-            "code": 200,  # or the appropriate HTTP status code
+            "code": 200,
             "message": "Payment processed successfully"
         }
 
     except Exception as e:
-        # Log the exception
         print("An error occurred:", e)
         return {
             "code": 500,
@@ -73,7 +69,6 @@ def updateOrder(screening_id, data, booking_id):
         }
 
 
-# Execute this program if it is run as a main script (not by 'import')
 if __name__ == "__main__":
     print("This is flask " + os.path.basename(__file__) +
         " for changing the seat...")
