@@ -3,6 +3,7 @@ import stripe
 import json
 import requests
 import datetime
+from invokes import invoke_http
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Enum
 from datetime import datetime
@@ -158,8 +159,11 @@ def charge(booking_id):
 
     }
     #send json to whatever url orchestrator is at
-    # if requests.post(url, json=data_to_send)
-
+    payment_url="http://127.0.0.1:5100/"
+    transaction_id = data["charge_details"]["id"]
+    payment_orch_url = .format(booking_id=booking_id)
+    send_status_result = invoke_http(payment_orch_url, method='PUT', json={"booking_id": booking_id,
+                                                                        "payment_transaction_id": transaction_id})
     return jsonify(data_to_send) 
 
 #for testing purposes
