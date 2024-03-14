@@ -51,7 +51,7 @@ def getTicketQuantity(information):
     return total_amount
 
 #get data from other microservice
-# testNewTransaction= 'http://127.0.0.1:5100/data'
+testNewTransaction= 'http://127.0.0.1:5111/data'
 # testRefund='http://127.0.0.1:5200/refundNo'
 def callUrl(url):
       # Replace with actual address
@@ -123,7 +123,8 @@ def index():
 
 @app.route('/charge', methods=['POST'])
 
-def charge(booking_id):
+def charge():
+    
     information=callUrl(testNewTransaction)
     token = request.form.get('stripeToken')
     amount=request.form.get("amount")
@@ -154,14 +155,17 @@ def charge(booking_id):
     db.session.commit()
     
     #json data format and send
-    payment_url="http://127.0.0.1:5100//payment/{booking_id}"
+    payment_url="http://127.0.0.1:5101//payment/{booking_id}"
   
     payment_orch_url = payment_url.format(booking_id=booking_id)
     
-    send_status_result = invoke_http(payment_orch_url, method='PUT', json={charge_object })
-
-    #url
-    return render_template('success.html',charge_details=charge_object)
+    send_status_result = invoke_http(payment_orch_url, method='POST', json=charge_object )
+    
+    if send_status_result:
+        return render_template('success.html',charge_details=charge_object)
+    
+    else:
+        return render_template('success.html',charge_details=charge_object)
 
 #for testing purposes
 @app.route("/refund-test")
@@ -185,7 +189,7 @@ def refund_no_ui(booking_id):
         db.session.commit()
    
         # return json of refund id
-        send_status_result = invoke_http(refund_payment_url, method='PUT', json={transaction })
+        send_status_result = invoke_http(refund_orchestrator_url, method='PUT', json={transaction })
         return redirect(url_for('refund_success'),refund_id=refund.id)
 
     
@@ -233,4 +237,4 @@ def error():
     return render_template("error.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5333)

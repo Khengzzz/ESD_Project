@@ -42,10 +42,10 @@ def updateOrder(booking_id, charge_details):
 
         get_booking_URL = booking_URL_get_booking.format(booking_id=booking_id)
         booking_details = invoke_http(get_booking_URL, method='GET')
-
+        print(booking_details)
         screening_id = booking_details["data"]["screening_id"]
         seat_ids = booking_details["data"]["seat_id"]
-
+        
         seat_url = seat_URL.format(screening_id=screening_id)
         seat_result = invoke_http(seat_url, method='PUT', json={"seat_ids": seat_ids})
         print('result:', seat_result)
