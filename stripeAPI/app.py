@@ -114,14 +114,14 @@ def retrieve_refund(refund_id):
         return None
 
 # app routes
-@app.route('/')
+@app.route('/payment_portal')
 def index():
     information=callUrl(testNewTransaction)
     amount=getTicketQuantity(information)
     booking_id=information["booking_id"]
     return render_template('index.html',total_amount=amount,booking_id=booking_id)
 
-@app.route('/payment/<booking_id>', methods=['POST'])
+@app.route('/charge', methods=['POST'])
 
 def charge(booking_id):
     information=callUrl(testNewTransaction)
@@ -153,18 +153,14 @@ def charge(booking_id):
     db.session.add(new_transaction)
     db.session.commit()
     
-    #json data format
-    data_to_send= {
-        "charge":charge_object,
+    #json data format and send
+    payment_url="http://127.0.0.1:5100//payment/{booking_id}"
+  
+    payment_orch_url = payment_url.format(booking_id=booking_id)
+    send_status_result = invoke_http(payment_orch_url, method='PUT', json={charge_object })
 
-    }
-    #send json to whatever url orchestrator is at
-    payment_url="http://127.0.0.1:5100/"
-    transaction_id = data["charge_details"]["id"]
-    payment_orch_url = .format(booking_id=booking_id)
-    send_status_result = invoke_http(payment_orch_url, method='PUT', json={"booking_id": booking_id,
-                                                                        "payment_transaction_id": transaction_id})
-    return jsonify(data_to_send) 
+    #url
+    return render_template('success.html',charge_details=charge_object)
 
 #for testing purposes
 @app.route("/refund-test")
