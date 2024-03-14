@@ -14,10 +14,12 @@
     <p>Payment ID: {{ charge_details.id }}</p>
     <p>{{ charge_details }}</p>
     
+    <p>click <a href="../../frontend/homepage.html">here</a> to return to homepage</p>
+    
     <!-- Refund Button -->
-    <form action="{{ url_for('refund', charge_id=charge_details.id) }}" method="post">
+    <!-- <form action="{{ url_for('refund', charge_id=charge_details.id) }}" method="post">
         <button type="submit">Refund Payment</button>
-    </form>
+    </form> -->
     
     <!-- Add more details as needed -->
 </body>
