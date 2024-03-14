@@ -7,6 +7,9 @@ from invokes import invoke_http
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Enum
 from datetime import datetime
+from os import environ
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 stripe.api_key = "sk_test_51OrGR4EaG7MlgHzNxoK8QmcdiOylptZTRcHBzmdyGpBSccw1suzZraVKcjFuQbH23ztdaABzUJIBn4w5EzRV9V8400rakKh75Q"
@@ -15,10 +18,11 @@ stripe.api_key = "sk_test_51OrGR4EaG7MlgHzNxoK8QmcdiOylptZTRcHBzmdyGpBSccw1suzZr
 
 #link to db
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/transactions'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/transactions'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+CORS(app)
 
 class Transactions(db.Model):
     transaction_id = db.Column(db.String(255), primary_key=True)
@@ -113,19 +117,28 @@ def retrieve_refund(refund_id):
         # Handle the error, such as refund not found
         return None
 
+
+
+
+
 # app routes
 @app.route('/payment_portal')
 def index():
-    information=callUrl(testNewTransaction)
+    #information=callUrl(testNewTransaction)
+    information = {
+                    "quantity": 2,
+                    "booking_id": 3
+                    }
+
     amount=getTicketQuantity(information)
     booking_id=information["booking_id"]
     return render_template('index.html',total_amount=amount,booking_id=booking_id)
 
-@app.route('/charge', methods=['POST'])
 
+
+
+@app.route('/charge', methods=['POST'])
 def charge():
-    
-    information=callUrl(testNewTransaction)
     token = request.form.get('stripeToken')
     amount=request.form.get("amount")
     currency = request.form.get('currency')
@@ -155,9 +168,8 @@ def charge():
     db.session.commit()
     
     #json data format and send
-    payment_url="http://127.0.0.1:5101//payment/{booking_id}"
-  
-    payment_orch_url = payment_url.format(booking_id=booking_id)
+    payment_orch_url = environ.get('payment_orchestrator_URL') or "http://127.0.0.1:5101//payment/{booking_id}"
+    payment_orch_url = payment_orch_url.format(booking_id=booking_id)
     
     send_status_result = invoke_http(payment_orch_url, method='POST', json=charge_object )
     
@@ -237,4 +249,4 @@ def error():
     return render_template("error.html")
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5333)
+    app.run(host="0.0.0.0", port=5002, debug=True)

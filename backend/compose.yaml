@@ -47,6 +47,7 @@ services:
     #image: linyubin123/transaction:esd
     restart: always
     environment:
+      payment_orchestrator_URL: http://payment_orchestrator:5101/payment/{booking_id}
       dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/transactions
       PYTHONUNBUFFERED: 1
     ports:
@@ -117,21 +118,21 @@ services:
   ###############################################
   # Refund Orchestrator
   ###############################################
-  refund_orchestrator:
-    build:
-      context: ./
-      dockerfile: refund_orchestrator.Dockerfile
-    image: linyubin123/refund_orchestrator:esd
-    restart: always
-    depends_on:
-      - bookings
-      #- transaction
-      #- subscriber
-      #- notification
-    environment:
-      #seat_URL: http://screening:5000/manage_seats/{screening_id}/book
-      #booking_URL_get_booking: http://bookings:5001/bookings/{booking_id}
-      #booking_URL_confirm: http://bookings:5001/bookings/{booking_id}/confirm
-      PYTHONUNBUFFERED: 1
-    ports:
-      - "5102:5102"
+  # refund_orchestrator:
+  #   build:
+  #     context: ./
+  #     dockerfile: refund_orchestrator.Dockerfile
+  #   image: linyubin123/refund_orchestrator:esd
+  #   restart: always
+  #   depends_on:
+  #     - bookings
+  #     #- transaction
+  #     #- subscriber
+  #     #- notification
+  #   environment:
+  #     #seat_URL: http://screening:5000/manage_seats/{screening_id}/book
+  #     #booking_URL_get_booking: http://bookings:5001/bookings/{booking_id}
+  #     #booking_URL_confirm: http://bookings:5001/bookings/{booking_id}/confirm
+  #     PYTHONUNBUFFERED: 1
+  #   ports:
+  #     - "5102:5102"

@@ -46,8 +46,6 @@ class Screening(db.Model):
         }
 
 
-
-
 class Seat(db.Model):
     __tablename__ = 'seat'
 
@@ -68,8 +66,7 @@ class Seat(db.Model):
         }
 
 
-
-
+# Get all screening details
 @app.route("/screenings")
 def get_all_screenings():
     screening_list = Screening.query.all()
@@ -88,8 +85,7 @@ def get_all_screenings():
         }), 404
 
 
-
-
+# Get details from a screening
 @app.route("/seats/<string:screening_id>")
 def get_all_seats(screening_id):
     seat_list = Seat.query.filter_by(screening_id=screening_id).all()
@@ -108,19 +104,18 @@ def get_all_seats(screening_id):
         }), 404
 
 
-
-
+# Update seat status from a screening
 @app.route("/manage_seats/<screening_id>/<type>", methods=["PUT"])
 def manage_seats(screening_id, type):
     data = request.json
 
-    if not data or "seat_ids" not in data:
+    if not data or "seats" not in data:
         return jsonify({
             "code": 400,
             "message": "No seat IDs provided."
         }), 400
 
-    seat_ids = data["seat_ids"]
+    seat_ids = data["seats"]
 
     if not seat_ids:
         return jsonify({

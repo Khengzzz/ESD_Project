@@ -11,6 +11,7 @@ seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/manage_seats/{scree
 booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
 booking_URL_confirm = environ.get('booking_URL_confirm') or "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
 
+
 @app.route("/payment/<booking_id>", methods=['POST'])
 def processPayment(booking_id):
     if request.is_json:
@@ -40,22 +41,26 @@ def updateOrder(booking_id, charge_details):
     try:
         print('\n-----Invoking bookings microservice-----')
 
+        # Get booking details
         get_booking_URL = booking_URL_get_booking.format(booking_id=booking_id)
         booking_details = invoke_http(get_booking_URL, method='GET')
-        print(booking_details)
+        print("Booking details:", booking_details)
+
+        # Extract necessary information from booking details
         screening_id = booking_details["data"]["screening_id"]
-        seat_ids = booking_details["data"]["seat_id"]
-        
+        seat_ids = booking_details["data"]["seat_id"]["seats"]  # Extract seat IDs from nested dictionary
+
+        # Update seat status
         seat_url = seat_URL.format(screening_id=screening_id)
-        seat_result = invoke_http(seat_url, method='PUT', json={"seat_ids": seat_ids})
-        print('result:', seat_result)
+        seat_result = invoke_http(seat_url, method='PUT', json={"seats": seat_ids})
+        print('Seat update result:', seat_result)
 
-
+        # Confirm booking with payment transaction ID
         transaction_id = charge_details["id"]
         confirm_booking_URL = booking_URL_confirm.format(booking_id=booking_id)
         booking_result = invoke_http(confirm_booking_URL, method='PUT', json={"booking_id": booking_id,
                                                                                 "payment_transaction_id": transaction_id})
-        print('booking result:', booking_result)
+        print('Booking confirmation result:', booking_result)
 
         return {
             "code": 200,
@@ -68,6 +73,7 @@ def updateOrder(booking_id, charge_details):
             "code": 500,
             "message": "An error occurred while processing payment"
         }
+
 
 
 if __name__ == "__main__":

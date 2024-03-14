@@ -28,7 +28,7 @@ INSERT INTO `booking` (`user_id`, `screening_id`, `seat_id`, `quantity`, `bookin
 VALUES
 (1, 1, '{"seats": [1,2]}', 2, 'Confirmed', 'ABC123', NULL),
 (2, 3, '{"seats": [3,4,5]}', 3, 'Pending', NULL, NULL),
-(3, 7, '{"seats": [6,7,8,9]}', 4, 'Pending', NULL, NULL),
+(3, 3, '{"seats": [1,2]}', 4, 'Pending', NULL, NULL),
 (1, 2, '{"seats": [10,11,12]}', 3, 'Refunded', 'DEF456', 'REF789'),
 (4, 6, '{"seats": [13,14,15]}', 3, 'Confirmed', 'GHI789', NULL),
 (2, 4, '{"seats": [16,17]}', 2, 'Confirmed', 'JKL012', NULL),
