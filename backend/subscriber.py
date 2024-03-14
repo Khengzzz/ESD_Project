@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from os import environ
+from flask_cors import CORS
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/subscription'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/subscriber'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -11,7 +13,7 @@ db = SQLAlchemy(app)
 
 
 class Subscription(db.Model):
-    __tablename__ = 'subscription'
+    __tablename__ = 'subscriber'
 
 
     screening_id = db.Column(db.Integer, primary_key=True)
@@ -148,4 +150,4 @@ def unsubscribe_user():
         ), 400
     
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5003, debug=True)
