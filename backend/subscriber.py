@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-class Subscription(db.Model):
+class Subscriber(db.Model):
     __tablename__ = 'subscriber'
 
 
@@ -40,7 +40,7 @@ class Subscription(db.Model):
 
 @app.route("/subscriptions/<string:screening_id>")
 def get_subscribers_by_screening(screening_id):
-    subscriber_list = Subscription.query.filter_by(screening_id=screening_id).all()
+    subscriber_list = Subscriber.query.filter_by(screening_id=screening_id).all()
 
     if subscriber_list:
         return jsonify({
@@ -60,7 +60,7 @@ def subscribe_user():
     screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")
     if (db.session.scalars(
-      db.select(Subscription).filter_by(screening_id=screening_id, user_id=user_id).
+      db.select(Subscriber).filter_by(screening_id=screening_id, user_id=user_id).
       limit(1)
       ).first()
       ):
@@ -77,7 +77,7 @@ def subscribe_user():
 
 
     data = request.get_json()
-    user_subscription = Subscription(screening_id, user_id, **data)
+    user_subscription = Subscriber(screening_id, user_id, **data)
 
 
     try:
@@ -109,7 +109,7 @@ def unsubscribe_user():
     user_id = request.args.get("user_id")
 
     existing_subscription = db.session.scalars(
-        db.select(Subscription).filter_by(screening_id=screening_id, user_id=user_id).limit(1)
+        db.select(Subscriber).filter_by(screening_id=screening_id, user_id=user_id).limit(1)
     ).first()
 
     if existing_subscription:
@@ -145,7 +145,7 @@ def unsubscribe_user():
                     "screening_id": screening_id,
                     "user_id": user_id
                 },
-                "message": "Subscription does not exist."
+                "message": "Subscriber does not exist."
             }
         ), 400
     
