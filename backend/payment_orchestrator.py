@@ -2,13 +2,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os, sys
 from invokes import invoke_http
+from os import environ
 
 app = Flask(__name__)
 CORS(app)
 
-seat_URL = "http://127.0.0.1:5000/manage_seats/{screening_id}/book"
-booking_URL_get_booking = "http://127.0.0.1:5001/bookings/{booking_id}"
-booking_URL_confirm = "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
+seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/manage_seats/{screening_id}/book"
+booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
+booking_URL_confirm = environ.get('booking_URL_confirm') or "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
 
 @app.route("/payment/<booking_id>", methods=['POST'])
 def processPayment(booking_id):
@@ -72,4 +73,4 @@ def updateOrder(booking_id, charge_details):
 if __name__ == "__main__":
     print("This is flask " + os.path.basename(__file__) +
         " for changing the seat...")
-    app.run(host="0.0.0.0", port=5100, debug=True)
+    app.run(host="0.0.0.0", port=5101, debug=True)

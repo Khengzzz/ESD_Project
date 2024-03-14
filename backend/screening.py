@@ -1,12 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from os import environ
+from flask_cors import CORS
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/screening'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/screening'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+CORS(app)
 
 class Screening(db.Model):
     __tablename__ = 'screening'
@@ -177,4 +180,4 @@ def manage_seats(screening_id, type):
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
