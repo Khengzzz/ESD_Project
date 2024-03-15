@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   PRIMARY KEY (`transaction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
- SET time_zone = '+08:00';  -- Set time zone to Singapore (GMT+8)
+SET time_zone = '+08:00';  -- Set time zone to Singapore (GMT+8)
 
 
 

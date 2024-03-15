@@ -26,17 +26,17 @@ CREATE TABLE IF NOT EXISTS `booking` (
 
 INSERT INTO `booking` (`user_id`, `screening_id`, `seat_id`, `quantity`, `booking_status`, `payment_transaction_id`, `refund_transaction_id`)
 VALUES
-(1, 1, '{"seats": [1,2]}', 2, 'Confirmed', 'ABC123', NULL),
-(2, 3, '{"seats": [3,4,5]}', 3, 'Pending', NULL, NULL),
+(1, 1, '{"seats": [1,2]}', 2, 'Pending', NULL, NULL),
+(2, 2, '{"seats": [3,4,5]}', 3, 'Pending', NULL, NULL),
 (3, 3, '{"seats": [1,2]}', 4, 'Pending', NULL, NULL),
-(1, 2, '{"seats": [10,11,12]}', 3, 'Refunded', 'DEF456', 'REF789'),
-(4, 6, '{"seats": [13,14,15]}', 3, 'Confirmed', 'GHI789', NULL),
-(2, 4, '{"seats": [16,17]}', 2, 'Confirmed', 'JKL012', NULL),
-(3, 15, '{"seats": [40,41]}', 2, 'Confirmed', 'MNO345', NULL),
-(5, 16, '{"seats": [42,43]}', 2, 'Pending', NULL, NULL),
-(1, 17, '{"seats": [44,45,46,47]}', 4, 'Confirmed', 'ABC123', NULL),
-(2, 18, '{"seats": [48]}', 1, 'Pending', NULL, NULL),
-(3, 19, '{"seats": [49,50]}', 2, 'Pending', NULL, NULL);
+(1, 1, '{"seats": [1,2,3]}', 3, 'Pending', NULL, NULL),
+(4, 2, '{"seats": [1,2,3]}', 3, 'Pending', NULL, NULL),
+(2, 3, '{"seats": [4,5]}', 2, 'Pending', NULL, NULL),
+(3, 1, '{"seats": [1,5]}', 2, 'Pending', NULL, NULL),
+(5, 2, '{"seats": [3,4]}', 2, 'Pending', NULL, NULL),
+(1, 3, '{"seats": [2]}', 4, 'Pending', NULL, NULL),
+(2, 1, '{"seats": [4]}', 1, 'Pending', NULL, NULL),
+(3, 2, '{"seats": [5]}', 2, 'Pending', NULL, NULL);
 
 
 COMMIT;

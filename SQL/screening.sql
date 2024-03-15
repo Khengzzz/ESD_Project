@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS `seat` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `screening` (`movie_name`, `movie_description`, `movie_date_time`, `movie_status`, `ticket_price`, `capacity`, `hall_number`) VALUES
-('Action Movie Premiere', 'Be the first to witness the adrenaline-pumping action!', '2024-03-20 18:00:00', 'Showing', 15.00, 100, 1),
-('Romantic Comedy Night', 'Fall in love with laughter and romance under the stars', '2024-04-10 20:00:00', 'Showing', 15.00, 80, 2),
-('Family Movie Matinee', 'Fun for the whole family with classic animated films', '2024-05-05 14:00:00', 'Showing', 15.00, 150, 3);
+('Action Movie Premiere', 'Be the first to witness the adrenaline-pumping action!', '2024-05-05 18:00:00', 'Showing', 15.00, 50, 1),
+('Romantic Comedy Night', 'Fall in love with laughter and romance under the stars', '2024-05-04 20:00:00', 'Showing', 15.00, 50, 2),
+('Family Movie Matinee', 'Fun for the whole family with classic animated films', '2024-05-05 14:00:00', 'Showing', 15.00, 50, 3);
 
 INSERT INTO `seat` (`screening_id`, `seat_id`, `seat_status`) VALUES
 (1, 1, 'available'),
