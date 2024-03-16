@@ -27,17 +27,6 @@ if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
     print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
     sys.exit(0)  # Exit with a success status
 
-def publish_payment(channel, payment_details):
-    routing_key = "payment.success"  # Routing key indicating payment success
-    channel.basic_publish(exchange=exchangename, routing_key=routing_key, body=jsonify(payment_details))
-
-
-def makePayment(booking_id):
-    # Invoke transaction microservice to get payment details
-    transaction_details = invoke_http('transaction_microservice_url', method='GET')  # Replace 'transaction_microservice_url' with the actual URL
-    return transaction_details
-
-
 @app.route("/payment/<booking_id>", methods=['POST'])
 def processPayment(booking_id):
     if request.is_json:
@@ -56,14 +45,16 @@ def processPayment(booking_id):
                 # Payment success, publish message to payment.success queue
                 payment_details = {
                     "booking_id": booking_id,
-                    "payment_transaction_id": charge_details["id"]
+                    "payment_transaction_id": charge_details["id"],
+                    "email": charge_details["billing_details"]["email"]
                 }
                 channel.basic_publish(exchange=exchangename, routing_key="payment.success", body=json.dumps(payment_details))
             else:
                 # Payment failure, publish message to payment.error queue
                 error_details = {
                     "booking_id": booking_id,
-                    "error_message": result["message"]
+                    "error_message": result["message"],
+                    "email": charge_details["billing_details"]["email"]
                 }
                 channel.basic_publish(exchange=exchangename, routing_key="payment.error", body=json.dumps(error_details))
 
@@ -72,6 +63,7 @@ def processPayment(booking_id):
             return jsonify(result)
 
         except Exception as e:
+            print(charge_details)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
