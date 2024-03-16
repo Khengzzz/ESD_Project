@@ -4,12 +4,38 @@ import os, sys
 from invokes import invoke_http
 from os import environ
 
+import amqp_connection
+import pika
+import json
+
 app = Flask(__name__)
 CORS(app)
 
 seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/manage_seats/{screening_id}/book"
 booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
 booking_URL_confirm = environ.get('booking_URL_confirm') or "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
+
+exchangename = environ.get('exchangename') 
+exchangetype = environ.get('exchangetype')
+
+#create a connection and a channel to the broker to publish messages to activity_log, error queues
+connection = amqp_connection.create_connection() 
+channel = connection.channel()
+
+#if the exchange is not yet created, exit the program
+if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
+    print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
+    sys.exit(0)  # Exit with a success status
+
+def publish_payment(channel, payment_details):
+    routing_key = "payment.success"  # Routing key indicating payment success
+    channel.basic_publish(exchange=exchangename, routing_key=routing_key, body=jsonify(payment_details))
+
+
+def makePayment(booking_id):
+    # Invoke transaction microservice to get payment details
+    transaction_details = invoke_http('transaction_microservice_url', method='GET')  # Replace 'transaction_microservice_url' with the actual URL
+    return transaction_details
 
 
 @app.route("/payment/<booking_id>", methods=['POST'])
@@ -18,6 +44,31 @@ def processPayment(booking_id):
         try:
             charge_details = request.get_json()
             result = updateOrder(booking_id, charge_details)
+            
+            # Establish connection to RabbitMQ broker
+            connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+            channel = connection.channel()
+
+            # Declare the exchange if not already declared
+            channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype)
+
+            if result["code"] == 200:
+                # Payment success, publish message to payment.success queue
+                payment_details = {
+                    "booking_id": booking_id,
+                    "payment_transaction_id": charge_details["id"]
+                }
+                channel.basic_publish(exchange=exchangename, routing_key="payment.success", body=json.dumps(payment_details))
+            else:
+                # Payment failure, publish message to payment.error queue
+                error_details = {
+                    "booking_id": booking_id,
+                    "error_message": result["message"]
+                }
+                channel.basic_publish(exchange=exchangename, routing_key="payment.error", body=json.dumps(error_details))
+
+            connection.close()
+
             return jsonify(result)
 
         except Exception as e:
@@ -35,6 +86,7 @@ def processPayment(booking_id):
         "code": 400,
         "message": "Invalid JSON input: " + str(request.get_data())
     }), 400
+
 
 
 def updateOrder(booking_id, charge_details):
