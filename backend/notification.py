@@ -37,7 +37,13 @@ def callback(channel, method, properties, body):
 
 def process_log(log_data):
     print("Processing log:")
-    print(log_data)
+    # Form a custom notification string based on the log data
+    notification_string = f"Notification: Payment for booking ID {log_data['booking_id']} "
+    if 'payment_transaction_id' in log_data:
+        notification_string += f"processed successfully. Transaction ID: {log_data['payment_transaction_id']}"
+    elif 'error_message' in log_data:
+        notification_string += f"failed. Error: {log_data['error_message']}"
+    print(notification_string)
 
 if __name__ == "__main__":
     print("Getting Connection")
