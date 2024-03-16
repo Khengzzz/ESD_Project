@@ -50,7 +50,7 @@ def process_log(log_data, queue_name):
 def send_email(log_data, queue_name):
     # Sender details
     SENDER_EMAIL = 'esdprojectemail@gmail.com'  # Replace with your Gmail email address
-    SENDER_PASSWORD = 'ESDProjectPassword'  # Replace with your Gmail password or app password
+    SENDER_PASSWORD = 'tupy hdfh errg rvbp'  # Replace with your Google Account app password
 
     # Create a multipart message
     msg = MIMEMultipart()
