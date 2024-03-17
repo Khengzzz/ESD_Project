@@ -38,7 +38,8 @@ class Subscriber(db.Model):
         }
 
 
-@app.route("/subscriptions/<string:screening_id>")
+# get all subscribers to a screening
+@app.route("/subscribers/subscriptions/<string:screening_id>")
 def get_subscribers_by_screening(screening_id):
     subscriber_list = Subscriber.query.filter_by(screening_id=screening_id).all()
 
@@ -55,15 +56,17 @@ def get_subscribers_by_screening(screening_id):
             "message": f"There are no subscribers for the movie screening."
         }), 404
 
-@app.route("/subscribe", methods=['POST'])
+
+# subscribe to a screening
+@app.route("/subscribers/subscribe", methods=['POST'])
 def subscribe_user():
     screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")
     if (db.session.scalars(
-      db.select(Subscriber).filter_by(screening_id=screening_id, user_id=user_id).
-      limit(1)
-      ).first()
-      ):
+        db.select(Subscriber).filter_by(screening_id=screening_id, user_id=user_id).
+        limit(1)
+        ).first()
+        ):
         return jsonify(
             {
                 "code": 400,
@@ -103,7 +106,9 @@ def subscribe_user():
         }
     ), 201
 
-@app.route("/unsubscribe", methods=['DELETE'])
+
+# unsubscribe from a screening
+@app.route("/subscribers/unsubscribe", methods=['DELETE'])
 def unsubscribe_user():
     screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")

@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Payment Form</h1>
-    <form action="/charge" method="post">
+    <form action="/transactions/charge" method="post">
         <input type="hidden" name="amount" value={{total_amount}}> <!-- Amount in cents (15 SGD * 100) -->
        
         <input type="hidden" name="currency" value="sgd"> <!-- Currency is SGD -->
