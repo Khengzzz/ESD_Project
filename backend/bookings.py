@@ -17,6 +17,7 @@ class Bookings(db.Model):
 
     booking_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
+    email = db.Column(db.String(255), nullable=False)
     screening_id = db.Column(db.Integer, nullable=False)  
     seat_id = db.Column(db.JSON, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)  # Added quantity field
@@ -25,8 +26,9 @@ class Bookings(db.Model):
     refund_transaction_id = db.Column(db.String(255))
     creation_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, user_id, screening_id, seat_id, quantity, booking_status='Pending', payment_transaction_id=None, refund_transaction_id=None, creation_timestamp=datetime.utcnow()):
+    def __init__(self, user_id, email, screening_id, seat_id, quantity, booking_status='Pending', payment_transaction_id=None, refund_transaction_id=None, creation_timestamp=datetime.utcnow()):
         self.user_id = user_id
+        self.email = email
         self.screening_id = screening_id
         self.seat_id = seat_id
         self.quantity = quantity
@@ -70,11 +72,17 @@ def get_all_bookings():
 #when booking is first created, booking status will be pending
 @app.route("/bookings", methods=["POST"])
 def create_booking():
-    user_id = request.args.get("user_id")
-    screening_id = request.args.get("screening_id")
-    data = request.json
+    # print(request.data)
+    # user_id = request.args.get("user_id")
+    # email = request.args.get("email")
+    # screening_id = request.args.get("screening_id")
 
-    if not all([user_id, screening_id, data]):
+    data = request.json
+    user_id = data.get("user_id")
+    email = data.get("email")
+    screening_id = data.get("screening_id")
+
+    if not all([user_id, email, screening_id, data]):
         return jsonify({
             "code": 400,
             "message": "Incomplete data provided."
@@ -90,7 +98,7 @@ def create_booking():
     
     quantity = len(seat_ids["seats"])
 
-    new_booking = Bookings(user_id=user_id, screening_id=screening_id, seat_id=seat_ids, quantity=quantity, booking_status='Pending')
+    new_booking = Bookings(user_id=user_id, email=email, screening_id=screening_id, seat_id=seat_ids, quantity=quantity, booking_status='Pending')
     db.session.add(new_booking)
     db.session.commit()
 
