@@ -17,6 +17,7 @@ class Bookings(db.Model):
 
     booking_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
+    user_email = db.Column(db.String(255), nullable=False)
     screening_id = db.Column(db.Integer, nullable=False)  
     seat_id = db.Column(db.JSON, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)  # Added quantity field
@@ -25,8 +26,9 @@ class Bookings(db.Model):
     refund_transaction_id = db.Column(db.String(255))
     creation_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, user_id, screening_id, seat_id, quantity, booking_status='Pending', payment_transaction_id=None, refund_transaction_id=None, creation_timestamp=datetime.utcnow()):
+    def __init__(self, user_id, user_email, screening_id, seat_id, quantity, booking_status='Pending', payment_transaction_id=None, refund_transaction_id=None, creation_timestamp=datetime.utcnow()):
         self.user_id = user_id
+        self.user_email = user_email
         self.screening_id = screening_id
         self.seat_id = seat_id
         self.quantity = quantity
@@ -40,6 +42,7 @@ class Bookings(db.Model):
         return {
             "booking_id": self.booking_id,
             "user_id": self.user_id,
+            "user_email": self.user_email,
             "screening_id": self.screening_id,
             "seat_id": self.seat_id,
             "quantity": self.quantity,

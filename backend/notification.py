@@ -60,10 +60,10 @@ def send_email(log_data, queue_name):
     if queue_name == "Success_Queue":  
         msg['Subject'] = 'Payment Notification'
         # One recipient
-        msg['To'] = log_data["email"]  # Replace with the recipient email address
+        msg['To'] = ''  # Replace with the recipient email address
         
         # Form a custom notification string based on the log data
-        notification_string = f"Notification: Payment"
+        notification_string = f"Notification: Payment for booking ID {log_data['booking_id']} "
         if 'payment_transaction_id' in log_data:
             notification_string += f"processed successfully. Transaction ID: {log_data['payment_transaction_id']}"
             
