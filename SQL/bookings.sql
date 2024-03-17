@@ -29,7 +29,7 @@ INSERT INTO `booking` (`user_id`, `email`, `screening_id`, `seat_id`, `quantity`
 VALUES
 (1, 'user1@example.com', 1, '{"seats": [1,2]}', 2, 'Confirmed', 'PY156', NULL),
 (2, 'user2@example.com', 2, '{"seats": [3,4,5]}', 3, 'Refunded', 'PY839', 'REF712'),
-(3, 'user3@example.com', 3, '{"seats": [1,2]}', 2, 'Confirmed', 'PY3478', NULL),
+(3, 'user3@example.com', 3, '{"seats": [1,2]}', 2, 'Pending', NULL, NULL),
 (1, 'user1@example.com', 1, '{"seats": [1,2,3]}', 3, 'Pending', NULL, NULL),
 (4, 'user4@example.com', 2, '{"seats": [1,2,3]}', 3, 'Pending', NULL, NULL),
 (2, 'user2@example.com', 3, '{"seats": [4,5]}', 2, 'Pending', NULL, NULL),

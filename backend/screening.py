@@ -86,7 +86,7 @@ def get_all_screenings():
 
 
 # Get details from a screening
-@app.route("/seats/<string:screening_id>")
+@app.route("/screenings/seats/<string:screening_id>")
 def get_all_seats(screening_id):
     seat_list = Seat.query.filter_by(screening_id=screening_id).all()
 
@@ -105,7 +105,7 @@ def get_all_seats(screening_id):
 
 
 # Update seat status from a screening
-@app.route("/manage_seats/<screening_id>/<type>", methods=["PUT"])
+@app.route("/screenings/manage_seats/<screening_id>/<type>", methods=["PUT"])
 def manage_seats(screening_id, type):
     data = request.json
 

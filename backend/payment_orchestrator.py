@@ -11,21 +11,21 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/manage_seats/{screening_id}/book"
+seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/book"
 booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
 booking_URL_confirm = environ.get('booking_URL_confirm') or "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
 
-exchangename = environ.get('exchangename') 
-exchangetype = environ.get('exchangetype')
+# exchangename = environ.get('exchangename')
+# exchangetype = environ.get('exchangetype')
 
-#create a connection and a channel to the broker to publish messages to activity_log, error queues
-connection = amqp_connection.create_connection() 
-channel = connection.channel()
+# #create a connection and a channel to the broker to publish messages to activity_log, error queues
+# connection = amqp_connection.create_connection()
+# channel = connection.channel()
 
-#if the exchange is not yet created, exit the program
-if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
-    print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
-    sys.exit(0)  # Exit with a success status
+# #if the exchange is not yet created, exit the program
+# if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
+#     print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
+#     sys.exit(0)  # Exit with a success status
 
 @app.route("/payment/<booking_id>", methods=['POST'])
 def processPayment(booking_id):
@@ -34,31 +34,31 @@ def processPayment(booking_id):
             charge_details = request.get_json()
             result = updateOrder(booking_id, charge_details)
             
-            # Establish connection to RabbitMQ broker
-            connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-            channel = connection.channel()
+            # # Establish connection to RabbitMQ broker
+            # connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+            # channel = connection.channel()
 
-            # Declare the exchange if not already declared
-            channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype)
+            # # Declare the exchange if not already declared
+            # channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype)
 
-            if result["code"] == 200:
-                # Payment success, publish message to payment.success queue
-                payment_details = {
-                    "booking_id": booking_id,
-                    "payment_transaction_id": charge_details["id"],
-                    "email": charge_details["billing_details"]["email"]
-                }
-                channel.basic_publish(exchange=exchangename, routing_key="payment.success", body=json.dumps(payment_details))
-            else:
-                # Payment failure, publish message to payment.error queue
-                error_details = {
-                    "booking_id": booking_id,
-                    "error_message": result["message"],
-                    "email": charge_details["billing_details"]["email"]
-                }
-                channel.basic_publish(exchange=exchangename, routing_key="payment.error", body=json.dumps(error_details))
+            # if result["code"] == 200:
+            #     # Payment success, publish message to payment.success queue
+            #     payment_details = {
+            #         "booking_id": booking_id,
+            #         "payment_transaction_id": charge_details["id"],
+            #         "email": charge_details["billing_details"]["email"]
+            #     }
+            #     channel.basic_publish(exchange=exchangename, routing_key="payment.success", body=json.dumps(payment_details))
+            # else:
+            #     # Payment failure, publish message to payment.error queue
+            #     error_details = {
+            #         "booking_id": booking_id,
+            #         "error_message": result["message"],
+            #         "email": charge_details["billing_details"]["email"]
+            #     }
+            #     channel.basic_publish(exchange=exchangename, routing_key="payment.error", body=json.dumps(error_details))
 
-            connection.close()
+            # connection.close()
 
             return jsonify(result)
 

@@ -1,138 +1,194 @@
 version: "3.8"
 
 volumes:
-  rabbitmq_data:
+  rabbitmq_data: 
+  pgdata: 
+
+networks:
+  kong-net:
+    driver: bridge
 
 services:
 
-  ##################################
+  #######################################
   # Screening
-  ##################################
+  #######################################
   screening:
     build:
       context: ./
       dockerfile: screening.Dockerfile
-    #image: linyubin123/screening:esd
     restart: always
     environment:
       dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/screening
       PYTHONUNBUFFERED: 1
     ports:
       - "5000:5000"
+    networks:
+      - kong-net
 
-
-  ##################################
+  #######################################
   # Booking
-  ##################################
+  #######################################
   bookings:
     build:
       context: ./
       dockerfile: bookings.Dockerfile
-    #image: linyubin123/bookings:esd
     restart: always
     environment:
       dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/booking_management
       PYTHONUNBUFFERED: 1
     ports:
       - "5001:5001"
+    networks:
+      - kong-net
 
-
-  ##################################
+  #######################################
   # Transaction
-  ##################################
+  #######################################
   transaction:
     build:
       context: ./
       dockerfile: transaction.Dockerfile
-    #image: linyubin123/transaction:esd
     restart: always
     environment:
       payment_orchestrator_URL: http://payment_orchestrator:5101/payment/{booking_id}
+      refund_orchestrator_url: http://refund_orchestrator:5102/refund/{booking_id}
       dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/transactions
       PYTHONUNBUFFERED: 1
     ports:
       - "5002:5002"
+    networks:
+      - kong-net
+    depends_on:
+      - bookings
 
-  ##################################
+  #######################################
   # Subscriber
-  ##################################
+  #######################################
   subscriber:
     build:
       context: ./
       dockerfile: subscriber.Dockerfile
-    #image: linyubin123/bookings:esd
     restart: always
     environment:
       dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/subscriber
       PYTHONUNBUFFERED: 1
     ports:
       - "5003:5003"
+    networks:
+      - kong-net
 
-  ##################################
-  # Notification
-  ##################################
-
-
-
-
-  ###############################################
-  # Booking Orchestrator
-  ###############################################
-  # booking_orchestrator:
-  #   build:
-  #     context: ./
-  #     dockerfile: booking_orchestrator.Dockerfile
-  #   image: linyubin123/booking_orchestrator:esd
-  #   restart: always
-  #   depends_on:
-  #     - screening
-  #     - bookings
-  #   environment:
-  #     # screening_URL: http://order:5001/order
-  #     # bookings_URL: http://shipping_record:5002/shipping_record 
-  #     PYTHONUNBUFFERED: 1
-  #   ports:
-  #     - "5100:5100"
-
-  ###############################################
+  #######################################
   # Payment Orchestrator
-  ###############################################
+  #######################################
   payment_orchestrator:
     build:
       context: ./
       dockerfile: payment_orchestrator.Dockerfile
     image: linyubin123/payment_orchestrator:esd
     restart: always
-    depends_on:
-      - bookings
-      #- transaction
-      #- notification
     environment:
-      seat_URL: http://screening:5000/manage_seats/{screening_id}/book
+      seat_URL: http://screening:5000/screenings/manage_seats/{screening_id}/book
       booking_URL_get_booking: http://bookings:5001/bookings/{booking_id}
       booking_URL_confirm: http://bookings:5001/bookings/{booking_id}/confirm
       PYTHONUNBUFFERED: 1
     ports:
       - "5101:5101"
+    networks:
+      - kong-net
+    depends_on:
+      - bookings
+      - screening
 
-  ###############################################
+  #######################################
   # Refund Orchestrator
-  ###############################################
-  # refund_orchestrator:
-  #   build:
-  #     context: ./
-  #     dockerfile: refund_orchestrator.Dockerfile
-  #   image: linyubin123/refund_orchestrator:esd
-  #   restart: always
-  #   depends_on:
-  #     - bookings
-  #     #- transaction
-  #     #- subscriber
-  #     #- notification
-  #   environment:
-  #     #seat_URL: http://screening:5000/manage_seats/{screening_id}/book
-  #     #booking_URL_get_booking: http://bookings:5001/bookings/{booking_id}
-  #     #booking_URL_confirm: http://bookings:5001/bookings/{booking_id}/confirm
-  #     PYTHONUNBUFFERED: 1
-  #   ports:
-  #     - "5102:5102"
+  #######################################
+  refund_orchestrator:
+    build:
+      context: ./
+      dockerfile: refund_orchestrator.Dockerfile
+    image: linyubin123/refund_orchestrator:esd
+    restart: always
+    environment:
+      seat_URL: http://screening:5000/screenings/seats/{screening_id}
+      refund_seat_URL: http://screening:5000/screenings/manage_seats/{screening_id}/refund
+      booking_URL_get_booking: http://bookings:5001/bookings/{booking_id}
+      booking_URL_refund: http://bookings:5001/bookings/{booking_id}/refund
+      subscriber_URL: http://subscriber:5003/subscribers/subscriptions/{screening_id}
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5102:5102"
+    networks:
+      - kong-net
+    depends_on:
+      - bookings
+      - screening
+
+  #######################################
+  # Kong database and migration
+  #######################################
+  kong-database:
+    image: postgres:15
+    platform: linux/amd64
+    restart: always
+    networks:
+      - kong-net
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  kong-migration:
+    image: kong/kong-gateway:3.2.2.5
+    platform: linux/amd64
+    command: "kong migrations bootstrap"
+    restart: on-failure
+    networks:
+      - kong-net
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: password
+    depends_on:
+      - kong-database
+
+  kong:
+    image: kong/kong-gateway:3.2.2.5
+    platform: linux/amd64
+    restart: always
+    networks:
+      - kong-net
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: password
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+    depends_on:
+      - kong-migration
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+      - "8444:8444"
+      - "8002:8002"
+      - "8445:8445"
+      - "8003:8003"
+      - "8446:8446"
+      - "8004:8004"
+      - "8447:8447"

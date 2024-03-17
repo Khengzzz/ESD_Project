@@ -48,7 +48,9 @@ class Bookings(db.Model):
             "refund_transaction_id": self.refund_transaction_id,
             "creation_timestamp": self.creation_timestamp.isoformat()
         }
-    
+
+
+# get all bookings
 @app.route("/bookings")
 def get_all_bookings():
     booking_list = Bookings.query.all()
@@ -66,8 +68,7 @@ def get_all_bookings():
         }), 404
 
 
-
-#when booking is first created, booking status will be pending
+# create a booking record
 @app.route("/bookings", methods=["POST"])
 def create_booking():
     user_id = request.args.get("user_id")
@@ -100,8 +101,8 @@ def create_booking():
         "data": new_booking.json()
     }), 201
 
-# get booking details
 
+# get booking details by booking_id
 @app.route("/bookings/<int:booking_id>", methods=["GET"])
 def get_booking_details(booking_id):
 
@@ -118,7 +119,8 @@ def get_booking_details(booking_id):
             "message": "Booking not found. Please check booking ID."
         }), 404
 
-# update payment status - to check again when payment orchestrator is up as transaction id is taken from stripe --> orchestrator
+
+# update payment status in a booking
 @app.route("/bookings/<int:booking_id>/confirm", methods=["PUT"])
 def confirm_booking(booking_id):
     booking = Bookings.query.get(booking_id)
@@ -157,7 +159,7 @@ def confirm_booking(booking_id):
         }), 500
 
 
-# update refund status, currently refund id is auto-generated
+# update refund status
 @app.route("/bookings/<int:booking_id>/refund", methods=["PUT"])
 def refund_booking(booking_id):
     booking = Bookings.query.get(booking_id)
@@ -169,7 +171,7 @@ def refund_booking(booking_id):
         }), 404
 
     try:
-        refund_transaction_id = "REF" + str(random.randint(100, 999))
+        refund_transaction_id = request.json.get("refund_transaction_id")
 
         booking.booking_status = 'Refunded'
         booking.refund_transaction_id = refund_transaction_id

@@ -120,9 +120,8 @@ def retrieve_refund(refund_id):
 
 
 
-
-# app routes
-@app.route('/payment_portal')
+# payment portal to make payment
+@app.route('/transactions/payment_portal')
 def index():
     #information=callUrl(testNewTransaction)
     information = {
@@ -135,9 +134,8 @@ def index():
     return render_template('index.html',total_amount=amount,booking_id=booking_id)
 
 
-
-
-@app.route('/charge', methods=['POST'])
+# create a charge object and calls payment orchestrator
+@app.route('/transactions/charge', methods=['POST'])
 def charge():
     token = request.form.get('stripeToken')
     amount=request.form.get("amount")
@@ -180,42 +178,40 @@ def charge():
         return render_template('success.html',charge_details=charge_object)
 
 #for testing purposes
-@app.route("/refund-test")
+@app.route("/transactions/refund-test")
 def refund_test():
     return render_template('refund-test.html')
 
 
 #refund json
-@app.route("/refund/<booking_id>",methods=["POST"])
+@app.route("/transactions/refund/<booking_id>",methods=["POST"])
 def refund_no_ui(booking_id):
-    
-    # booking_id = request.form.get('booking_id')
-    # print(booking_id)
+    refund_orchestrator_url = environ.get('refund_orchestrator_URL') or "http://127.0.0.1:5102/refund/{booking_id}"
+    refund_orchestrator_url = refund_orchestrator_url.format(booking_id=booking_id)
 
-    #get json from refund orchestrator,put in actual url
-    # booking_id=requests.get(url, json=data_to_send)
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
     refund = refund_charge(transaction.transaction_id)
     if refund:
         transaction.transaction_status = 'refunded'
         db.session.commit()
-   
+
         # return json of refund id
         send_status_result = invoke_http(refund_orchestrator_url, method='PUT', json={transaction })
-        return redirect(url_for('refund_success'),refund_id=refund.id)
-
+        return jsonify({"refund_id": refund.id}), 200
+    else:
+        return jsonify({"error": "Refund failed"}), 500
     
 
 
 
 
-@app.route("/refund/<charge_id>", methods=['POST'])
+@app.route("/transactions/refund/<charge_id>", methods=['POST'])
 def refund(charge_id):
     # Call refund_charge function to initiate refund
     refund = refund_charge(charge_id)
     if refund:
         # Refund successful, redirect to success page or render success template
-        return redirect(url_for('refund_success', refund_id=refund.id))
+        return redirect(url_for('/transactions/refund_success', refund_id=refund.id))
     else:
         # Refund failed, redirect to error page or render error template
         return redirect(url_for('error'))
@@ -223,7 +219,7 @@ def refund(charge_id):
 
 
 
-@app.route("/success")
+@app.route("/transactions/success")
 def success():
     charge_id = request.args.get('charge_id')
     charge_object = retrieve_charge(charge_id)
@@ -232,7 +228,7 @@ def success():
 
 
 
-@app.route("/refund_success/<refund_id>")
+@app.route("/transactions/refund_success/<refund_id>")
 def refund_success(refund_id):
     # Retrieve the refund object using the refund_id
     refund = retrieve_refund(refund_id)
@@ -244,7 +240,7 @@ def refund_success(refund_id):
 
 
 
-@app.route("/error")
+@app.route("/transactions/error")
 def error():
     return render_template("error.html")
 
