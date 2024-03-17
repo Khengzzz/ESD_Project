@@ -81,10 +81,10 @@ def create_booking():
 
     data = request.json
     user_id = data.get("user_id")
-    email = data.get("email")
+    user_email = data.get("user_email")
     screening_id = data.get("screening_id")
 
-    if not all([user_id, email, screening_id, data]):
+    if not all([user_id, user_email, screening_id, data]):
         return jsonify({
             "code": 400,
             "message": "Incomplete data provided."
@@ -100,7 +100,7 @@ def create_booking():
     
     quantity = len(seat_ids["seats"])
 
-    new_booking = Bookings(user_id=user_id, email=email, screening_id=screening_id, seat_id=seat_ids, quantity=quantity, booking_status='Pending')
+    new_booking = Bookings(user_id=user_id, user_email=user_email, screening_id=screening_id, seat_id=seat_ids, quantity=quantity, booking_status='Pending')
     db.session.add(new_booking)
     db.session.commit()
 
