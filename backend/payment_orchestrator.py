@@ -29,7 +29,8 @@ def check_exchange(channel, exchange_name, exchange_type):
         print("Error while declaring exchange:", e)
         return False
 
-connection = create_connection()
+#connection = create_connection()
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
 
@@ -50,24 +51,25 @@ def processPayment(booking_id):
             channel = connection.channel()
 
             # Declare the exchange if not already declared
-            channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype)
+            #channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype)
 
-            if result["code"] == 200:
+        
                 # Payment success, publish message to payment.success queue
-                payment_details = {
-                    "booking_id": booking_id,
-                    "payment_transaction_id": charge_details["id"],
-                    "email": charge_details["billing_details"]["email"]
-                }
-                channel.basic_publish(exchange=exchangename, routing_key="payment.success", body=json.dumps(payment_details))
-            else:
+            print('\n\n-----Publishing the (payment success) message with routing_key=*.success-----')
+            payment_details = {
+                    #"booking_id": booking_id,
+                "payment_transaction_id": charge_details["id"],
+                "email": charge_details["billing_details"]["name"]
+            }
+            channel.basic_publish(exchange=exchangename, routing_key="*.success", body=json.dumps(payment_details))
+            #else:
                 # Payment failure, publish message to payment.error queue
-                error_details = {
-                    "booking_id": booking_id,
-                    "error_message": result["message"],
-                    "email": charge_details["billing_details"]["email"]
-                }
-                channel.basic_publish(exchange=exchangename, routing_key="payment.error", body=json.dumps(error_details))
+                # error_details = {
+                #     "booking_id": booking_id,
+                #     "error_message": result["message"],
+                #     "email": charge_details["billing_details"]["name"]
+                # }
+                # channel.basic_publish(exchange=exchangename, routing_key="payment.error", body=json.dumps(error_details))
 
             connection.close()
 
