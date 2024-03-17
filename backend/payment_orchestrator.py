@@ -15,12 +15,23 @@ seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/manage_s
 booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
 booking_URL_confirm = environ.get('booking_URL_confirm') or "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
 
-exchangename = environ.get('exchangename')
-exchangetype = environ.get('exchangetype')
+exchangename="payment_topic"
+exchangetype="topic"
 
-#create a connection and a channel to the broker to publish messages to activity_log, error queues
-connection = amqp_connection.create_connection()
+def create_connection():
+    return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+
+def check_exchange(channel, exchange_name, exchange_type):
+    try:
+        channel.exchange_declare(exchange=exchange_name, exchange_type=exchange_type, durable=True)
+        return True
+    except Exception as e:
+        print("Error while declaring exchange:", e)
+        return False
+
+connection = create_connection()
 channel = connection.channel()
+
 
 #if the exchange is not yet created, exit the program
 if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
