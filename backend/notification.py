@@ -57,7 +57,7 @@ def send_email(log_data, queue_name, routing_key):
     
     # Craft the email based on payment or refund recipient
     if routing_key == "*.success":  
-        msg['Subject'] = 'Payment Notification'
+        msg['Subject'] = 'Payment Success Notification'
         # One recipient
         msg['To'] = log_data["email"]  # Replace with the recipient email address
         
@@ -73,12 +73,30 @@ def send_email(log_data, queue_name, routing_key):
         # Attach the custom notif string to the email
         messageText = MIMEText(notification_string,'plain')
         msg.attach(messageText)
-    
-    if routing_key == "*.refund": 
+
+    elif routing_key == "*.failure":  
+        msg['Subject'] = 'Payment Failure Notification'
+        # One recipient
+        msg['To'] = log_data["email"]  # Replace with the recipient email address
+        
+        # Form a custom notification string based on the log data
+        notification_string = f"Notification: Payment "
+        if 'payment_transaction_id' in log_data:
+            notification_string += f"has not been processed successfully. Please try again later."
+            
+        # Can remove this if we scrapping failure scenario
+        elif 'error_message' in log_data:
+            notification_string += f"failed. Error: {log_data['error_message']}"
+
+        # Attach the custom notif string to the email
+        messageText = MIMEText(notification_string,'plain')
+        msg.attach(messageText)
+
+    elif routing_key == "*.refund": 
         
         msg['Subject'] = 'Refund Notification'
         # Multiple recipients
-        msg['To'] = ''  # Replace with the recipients email addresses
+        msg['To'] = log_data["email"]  # Replace with the recipients email addresses
         
         # Form a custom notification string based on the log data
         notification_string = f"Notification: Refund for booking ID {log_data['booking_id']} "
@@ -93,6 +111,23 @@ def send_email(log_data, queue_name, routing_key):
         messageText = MIMEText(notification_string,'plain')
         msg.attach(messageText)
 
+    elif routing_key == "*.subsribers": 
+        
+        msg['Subject'] = 'Ticket Availability Notification'
+        # Multiple recipients
+        msg['To'] = log_data["email"]  # Replace with the recipients email addresses
+        
+        # Form a custom notification string based on the log data
+        notification_string = f"The screening now has seats available! Get your tickets now!"
+            
+        # Can remove this if we scrapping failure scenario
+        if 'error_message' in log_data:
+            notification_string += f"Error: {log_data['error_message']}"
+
+        # Attach the custom notif string to the email
+        messageText = MIMEText(notification_string,'plain')
+        msg.attach(messageText)
+        
     try:
         # Connect to Gmail's SMTP server
         server = smtplib.SMTP('smtp.gmail.com:587')

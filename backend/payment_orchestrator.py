@@ -65,7 +65,7 @@ def processPayment(booking_id):
                 #     "error_message": result["message"],
                 #     "email": charge_details["billing_details"]["name"]
                 # }
-                # channel.basic_publish(exchange=exchangename, routing_key="payment.error", body=json.dumps(error_details))
+                # channel.basic_publish(exchange=exchangename, routing_key="*.error", body=json.dumps(error_details))
 
             connection.close()
 
