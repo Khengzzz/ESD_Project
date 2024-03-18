@@ -11,7 +11,7 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-exchangename="payment_topic"
+exchangename="notification"
 exchangetype="topic"
 
 def create_connection():

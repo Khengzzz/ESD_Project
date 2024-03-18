@@ -10,8 +10,8 @@ import pika
 app = Flask(__name__)
 CORS(app)
 
-# exchangename="refund_direct"
-# exchangetype="direct"
+# exchangename="notification"
+# exchangetype="topic"
 
 # def create_connection():
 #     return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
@@ -102,14 +102,14 @@ def initiateRefund(booking_id, refund_details):
             # # Store all the emails of the users subscribed to the selecting screening
             # for subscriber in subscribers:
             #     email_list.append(subscriber["user_email"])
-            # # Refund success, publish message to refund queue informing subscribers that there are slots
-            # print('\n\n-----Publishing the (subscriber notif) message with routing_key=*.refund-----')
+            # # Refund success, publish message to new ticket queue informing subscribers that there are slots
+            # print('\n\n-----Publishing the (subscriber notif) message with routing_key=*.subsribers-----')
             # subscriber_notif_details = {
-            #     #"booking_id": booking_id,
+            #     "booking_id": booking_id,
             #     "screening_id": screening_id,
             #     "email": email_list
             # }
-            # channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(subscriber_notif_details))
+            # channel.basic_publish(exchange=exchangename, routing_key="*.subsriber", body=json.dumps(subscriber_notif_details))
             
             # # Refund success, publish message to refund queue informing refund is successful
             # print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')

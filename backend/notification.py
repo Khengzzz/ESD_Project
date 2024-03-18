@@ -8,13 +8,12 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-payment_queue_names = ['Success_Queue', 'Failure_Queue']
-refund_queue_name = 'Refund_Queue'
+queue_name = 'Notification'
 
-def receive_payment_log(channel, payment_queue_name):
+def receive_payment_log(channel, queue_name):
     try:
-        channel.basic_consume(queue=payment_queue_name, on_message_callback=lambda ch, method, properties, body: callback(ch, method, properties, body, payment_queue_name), auto_ack=True)
-        print('Payment Consumer: Consuming from queue:', payment_queue_name)
+        channel.basic_consume(queue=queue_name, on_message_callback=lambda ch, method, properties, body: callback(ch, method, properties, body, queue_name), auto_ack=True)
+        print('Payment Consumer: Consuming from queue:', queue_name)
         channel.start_consuming()
     
     except pika.exceptions.AMQPError as e:
@@ -25,8 +24,8 @@ def receive_payment_log(channel, payment_queue_name):
 
 def receive_refund_log(channel):
     try:
-        channel.basic_consume(queue=refund_queue_name, on_message_callback=lambda ch, method, properties, body: callback(ch, method, properties, body, refund_queue_name), auto_ack=True)
-        print('Refund Consumer: Consuming from queue:', refund_queue_name)
+        channel.basic_consume(queue=queue_name, on_message_callback=lambda ch, method, properties, body: callback(ch, method, properties, body, queue_name), auto_ack=True)
+        print('Refund Consumer: Consuming from queue:', queue_name)
         channel.start_consuming()
     
     except pika.exceptions.AMQPError as e:
@@ -47,7 +46,7 @@ def process_log(log_data, queue_name):
     # Call email notif function
     send_email(log_data, queue_name)
 
-def send_email(log_data, queue_name):
+def send_email(log_data, queue_name, routing_key):
     # Sender details
     SENDER_EMAIL = 'esdprojectemail@gmail.com'  # Replace with your Gmail email address
     SENDER_PASSWORD = 'tupy hdfh errg rvbp'  # Replace with your Google Account app password
@@ -57,7 +56,7 @@ def send_email(log_data, queue_name):
     msg['From'] = SENDER_EMAIL
     
     # Craft the email based on payment or refund recipient
-    if queue_name == "Success_Queue":  
+    if routing_key == "*.success":  
         msg['Subject'] = 'Payment Notification'
         # One recipient
         msg['To'] = log_data["email"]  # Replace with the recipient email address
@@ -75,7 +74,7 @@ def send_email(log_data, queue_name):
         messageText = MIMEText(notification_string,'plain')
         msg.attach(messageText)
     
-    elif queue_name == "Refund_Queue":
+    if routing_key == "*.refund": 
         
         msg['Subject'] = 'Refund Notification'
         # Multiple recipients
@@ -115,9 +114,5 @@ if __name__ == "__main__":
     connection = amqp_connection.create_connection()
     print("Connection established successfully")
     channel = connection.channel()
-
-    # Set up Notification microservice to subscribe to payment and refund queues and start consuming messages from each of them
-    for payment_queue_name in payment_queue_names:
-        receive_payment_log(channel, payment_queue_name)
         
     receive_refund_log(channel)
