@@ -11,10 +11,6 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/book"
-booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
-booking_URL_confirm = environ.get('booking_URL_confirm') or "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
-
 exchangename="payment_topic"
 exchangetype="topic"
 
@@ -95,6 +91,10 @@ def processPayment(booking_id):
 
 
 def updateOrder(booking_id, charge_details):
+    seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/book"
+    booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
+    booking_URL_confirm = environ.get('booking_URL_confirm') or "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
+    
     try:
         print('\n-----Invoking bookings microservice-----')
 
@@ -114,9 +114,11 @@ def updateOrder(booking_id, charge_details):
 
         # Confirm booking with payment transaction ID
         transaction_id = charge_details["id"]
-        confirm_booking_URL = booking_URL_confirm.format(booking_id=booking_id)
-        booking_result = invoke_http(confirm_booking_URL, method='PUT', json={"booking_id": booking_id,
-                                                                                "payment_transaction_id": transaction_id})
+        email = charge_details["billing_details"]["name"]
+        booking_URL_confirm = booking_URL_confirm.format(booking_id=booking_id)
+        booking_result = invoke_http(booking_URL_confirm, method='PUT', json={"booking_id": booking_id,
+                                                                                "payment_transaction_id": transaction_id,
+                                                                                "email": email})
         print('Booking confirmation result:', booking_result)
 
         return {

@@ -52,7 +52,7 @@ services:
     restart: always
     environment:
       payment_orchestrator_URL: http://payment_orchestrator:5101/payment/{booking_id}
-      refund_orchestrator_url: http://refund_orchestrator:5102/refund/{booking_id}
+      refund_orchestrator_URL: http://refund_orchestrator:5102/refund/{booking_id}
       dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/transactions
       PYTHONUNBUFFERED: 1
     ports:
@@ -77,6 +77,27 @@ services:
       - "5003:5003"
     networks:
       - kong-net
+
+  #######################################
+  # Booking Orchestrator
+  #######################################
+  booking_orchestrator:
+    build:
+      context: ./
+      dockerfile: booking_orchestrator.Dockerfile
+    image: linyubin123/booking_orchestrator:esd
+    restart: always
+    environment:
+      screening_URL_reserve: http://screening:5000/screenings/manage_seats/{screening_id}/reserve
+      booking_URL_create: http://bookings:5001/bookings
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5100:5100"
+    networks:
+      - kong-net
+    depends_on:
+      - bookings
+      - screening
 
   #######################################
   # Payment Orchestrator

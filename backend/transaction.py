@@ -125,8 +125,8 @@ def retrieve_refund(refund_id):
 def index():
     #information=callUrl(testNewTransaction)
     information = {
-                    "quantity": 2,
-                    "booking_id": 3
+                    "quantity": 3,
+                    "booking_id": 24
                     }
 
     amount=getTicketQuantity(information)
@@ -188,17 +188,16 @@ def refund_test():
 def refund_no_ui(booking_id):
     refund_orchestrator_url = environ.get('refund_orchestrator_URL') or "http://127.0.0.1:5102/refund/{booking_id}"
     refund_orchestrator_url = refund_orchestrator_url.format(booking_id=booking_id)
-
+    print("HI")
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
-    
+    print("AAA",transaction)
     refund = refund_charge(transaction.transaction_id)
     if refund:
-        print("hi")
         transaction.transaction_status = 'refunded'
         db.session.commit()
-
+        print(refund)
         # return json of refund id
-        send_status_result = invoke_http(refund_orchestrator_url, method='PUT', json={transaction })
+        send_status_result = invoke_http(refund_orchestrator_url, method='POST', json=refund)
         return jsonify({"refund_id": refund.id}), 200
     else:
         return jsonify({"error": "Refund failed"}), 500
