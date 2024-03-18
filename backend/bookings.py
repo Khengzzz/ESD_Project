@@ -17,7 +17,7 @@ class Bookings(db.Model):
 
     booking_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
-    user_email = db.Column(db.String(255), nullable=False)
+    user_email = db.Column(db.String(255), nullable=True)
     screening_id = db.Column(db.Integer, nullable=False)  
     seat_id = db.Column(db.JSON, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)  # Added quantity field
@@ -26,7 +26,7 @@ class Bookings(db.Model):
     refund_transaction_id = db.Column(db.String(255))
     creation_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, user_id, user_email, screening_id, seat_id, quantity, booking_status='Pending', payment_transaction_id=None, refund_transaction_id=None, creation_timestamp=datetime.utcnow()):
+    def __init__(self, user_id, screening_id, seat_id, quantity, user_email=None, booking_status='Pending', payment_transaction_id=None, refund_transaction_id=None, creation_timestamp=datetime.utcnow()):
         self.user_id = user_id
         self.user_email = user_email
         self.screening_id = screening_id
@@ -35,8 +35,7 @@ class Bookings(db.Model):
         self.booking_status = booking_status
         self.payment_transaction_id = payment_transaction_id
         self.refund_transaction_id = refund_transaction_id
-        self.creation_timestamp = creation_timestamp    
-
+        self.creation_timestamp = creation_timestamp
 
     def json(self):
         return {
@@ -51,6 +50,7 @@ class Bookings(db.Model):
             "refund_transaction_id": self.refund_transaction_id,
             "creation_timestamp": self.creation_timestamp.isoformat()
         }
+
 
 
 # get all bookings
@@ -74,33 +74,27 @@ def get_all_bookings():
 # create a booking record
 @app.route("/bookings", methods=["POST"])
 def create_booking():
-    # print(request.data)
-    # user_id = request.args.get("user_id")
-    # email = request.args.get("email")
-    # screening_id = request.args.get("screening_id")
-
     data = request.json
     user_id = data.get("user_id")
-    user_email = data.get("user_email")
     screening_id = data.get("screening_id")
 
-    if not all([user_id, user_email, screening_id, data]):
+    if not all([user_id, screening_id, data]):
         return jsonify({
             "code": 400,
             "message": "Incomplete data provided."
         }), 400
 
-    seat_ids = data.get("seat_ids")
+    seat_ids = {"seats": data.get("seat_ids")}
 
     if not seat_ids:
         return jsonify({
             "code": 400,
-            "message": "No seat IDs provided."
+            "message": "No seat IDs provided.",
         }), 400
     
     quantity = len(seat_ids["seats"])
 
-    new_booking = Bookings(user_id=user_id, user_email=user_email, screening_id=screening_id, seat_id=seat_ids, quantity=quantity, booking_status='Pending')
+    new_booking = Bookings(user_id=user_id, screening_id=screening_id, seat_id=seat_ids, quantity=quantity, booking_status='Pending')
     db.session.add(new_booking)
     db.session.commit()
 
@@ -142,6 +136,7 @@ def confirm_booking(booking_id):
 
     try:
         payment_transaction_id = request.json.get("payment_transaction_id")
+        email = request.json.get("email")
 
         if not payment_transaction_id:
             return jsonify({
@@ -151,6 +146,7 @@ def confirm_booking(booking_id):
 
         booking.booking_status = 'Confirmed'
         booking.payment_transaction_id = payment_transaction_id
+        booking.user_email = email
 
         db.session.commit()
 

@@ -7,15 +7,11 @@ from os import environ
 app = Flask(__name__)
 CORS(app)
 
-screening_URL_reserve = environ.get('screening_URL_reserve') or "http://127.0.0.1:5000/manage_seats/{screening_id}/reserve"
-booking_URL_create = environ.get('booking_URL_create') or "http://127.0.0.1:5001/bookings"
-# booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
-
-@app.route("/receive_booking", methods=['POST'])
+@app.route("/create_booking", methods=['POST'])
 def receivebooking():
     if request.is_json:
         try:
-            booking_details = request.get_json() #assuming that data fields: user_id, email, screening_id, seat_id are sent in a json file
+            booking_details = request.get_json() #assuming that data fields: user_id, screening_id, seat_id are sent in a json file
             print("\nReceived booking details in JSON:", booking_details)
 
             # 1. Send booking details from UI to booking orchestrator 
@@ -41,13 +37,15 @@ def receivebooking():
     }), 400
 
 def processBooking(booking_details):
+    screening_URL_reserve = environ.get('screening_URL_reserve') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/reserve"
+    booking_URL_create = environ.get('booking_URL_create') or "http://127.0.0.1:5001/bookings"
     try:
 
         # 2. interact with screening.py to update seat status to reserve - orchestrator runs but reserve status in db is not updated
         print('\n-----Invoking screening microservice-----')
         # print(booking_details["screening_id"])
-        reserve_seats_URL = screening_URL_reserve.format(screening_id=booking_details["screening_id"])
-        invoke_http(reserve_seats_URL, method='PUT', json=booking_details)
+        screening_URL_reserve = screening_URL_reserve.format(screening_id=booking_details["screening_id"])
+        invoke_http(screening_URL_reserve, method='PUT', json={"seats": booking_details["seat_ids"]})
         print("\nSeats are reserved")
 
         # 3. send booking details to booking.py to create new entry
@@ -84,5 +82,5 @@ def processBooking(booking_details):
 
 if __name__ == "__main__":
     print("This is booking orchestrator...")
-    app.run(host="0.0.0.0", port=5103, debug=True) 
+    app.run(host="0.0.0.0", port=5100, debug=True) 
     # used 5103, different port 

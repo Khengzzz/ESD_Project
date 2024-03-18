@@ -10,33 +10,27 @@ import pika
 app = Flask(__name__)
 CORS(app)
 
-seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/seats/{screening_id}"
-refund_seat_URL = environ.get('refund_seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/refund"
-booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
-booking_URL_refund = environ.get('booking_URL_refund') or "http://127.0.0.1:5001/bookings/{booking_id}/refund"
-subscriber_URL = environ.get('subscriber_URL') or "http://127.0.0.1:5003/subscribers/subscriptions/{screening_id}"
+# exchangename="refund_direct"
+# exchangetype="direct"
 
-exchangename="refund_direct"
-exchangetype="direct"
+# def create_connection():
+#     return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 
-def create_connection():
-    return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+# def check_exchange(channel, exchange_name, exchange_type):
+#     try:
+#         channel.exchange_declare(exchange=exchange_name, exchange_type=exchange_type, durable=True)
+#         return True
+#     except Exception as e:
+#         print("Error while declaring exchange:", e)
+#         return False
 
-def check_exchange(channel, exchange_name, exchange_type):
-    try:
-        channel.exchange_declare(exchange=exchange_name, exchange_type=exchange_type, durable=True)
-        return True
-    except Exception as e:
-        print("Error while declaring exchange:", e)
-        return False
+# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+# channel = connection.channel()
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-channel = connection.channel()
-
-#if the exchange is not yet created, exit the program
-if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
-    print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
-    sys.exit(0)  # Exit with a success status
+# #if the exchange is not yet created, exit the program
+# if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
+#     print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
+#     sys.exit(0)  # Exit with a success status
 
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):
@@ -56,17 +50,22 @@ def processRefund(booking_id):
     }), 400
 
 def initiateRefund(booking_id, refund_details):
+    seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/seats/{screening_id}"
+    refund_seat_URL = environ.get('refund_seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/refund"
+    booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
+    booking_URL_refund = environ.get('booking_URL_refund') or "http://127.0.0.1:5001/bookings/{booking_id}/refund"
+    subscriber_URL = environ.get('subscriber_URL') or "http://127.0.0.1:5003/subscribers/subscriptions/{screening_id}"
 
     try:
         print('\n-----Invoking bookings microservice for refund-----')
 
         # Get booking details
-        get_booking_URL = booking_URL_get_booking.format(booking_id=booking_id)
-        booking_details = invoke_http(get_booking_URL, method='GET')
+        booking_URL_get_booking = booking_URL_get_booking.format(booking_id=booking_id)
+        booking_details = invoke_http(booking_URL_get_booking, method='GET')
         
         # Retrieve the email and payment transaction id of the person who refunded
-        refund_user_email = booking_details["user_email"]
-        refund_payment_transaction_id = booking_details["payment_transaction_id"]
+        refund_user_email = booking_details["data"]["user_email"]
+        refund_payment_transaction_id = booking_details["data"]["payment_transaction_id"]
 
         # Extract necessary information
         screening_id = booking_details["data"]["screening_id"]
@@ -99,28 +98,28 @@ def initiateRefund(booking_id, refund_details):
             subscribers = invoke_http(subscriber_URL, method='GET')
             print("Subscribers:", subscribers)
             
-            email_list = []
-            # Store all the emails of the users subscribed to the selecting screening
-            for subscriber in subscribers:
-                email_list.append(subscriber["user_email"])
-            # Refund success, publish message to refund queue informing subscribers that there are slots
-            print('\n\n-----Publishing the (subscriber notif) message with routing_key=*.refund-----')
-            subscriber_notif_details = {
-                #"booking_id": booking_id,
-                "screening_id": screening_id,
-                "email": email_list
-            }
-            channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(subscriber_notif_details))
+            # email_list = []
+            # # Store all the emails of the users subscribed to the selecting screening
+            # for subscriber in subscribers:
+            #     email_list.append(subscriber["user_email"])
+            # # Refund success, publish message to refund queue informing subscribers that there are slots
+            # print('\n\n-----Publishing the (subscriber notif) message with routing_key=*.refund-----')
+            # subscriber_notif_details = {
+            #     #"booking_id": booking_id,
+            #     "screening_id": screening_id,
+            #     "email": email_list
+            # }
+            # channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(subscriber_notif_details))
             
-            # Refund success, publish message to refund queue informing refund is successful
-            print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')
-            refund_details = {
-                #"booking_id": booking_id,
-                "payment_transaction_id": refund_payment_transaction_id,
-                "screening_id": screening_id,
-                "email": refund_user_email
-            }
-            channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(refund_details))
+            # # Refund success, publish message to refund queue informing refund is successful
+            # print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')
+            # refund_details = {
+            #     #"booking_id": booking_id,
+            #     "payment_transaction_id": refund_payment_transaction_id,
+            #     "screening_id": screening_id,
+            #     "email": refund_user_email
+            # }
+            # channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(refund_details))
         
         return {
             "code": 200,

@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS `booking`;
 CREATE TABLE IF NOT EXISTS `booking` (
   `booking_id` INT AUTO_INCREMENT PRIMARY KEY,
   `user_id` INT NOT NULL,
-  `user_email` VARCHAR(255) NOT NULL,
+  `user_email` VARCHAR(255) NULL,
   `screening_id` INT NOT NULL,
   `seat_id` JSON NOT NULL,
   `quantity` INT NOT NULL,
