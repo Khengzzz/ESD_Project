@@ -18,7 +18,7 @@ stripe.api_key = "sk_test_51OrGR4EaG7MlgHzNxoK8QmcdiOylptZTRcHBzmdyGpBSccw1suzZr
 
 #link to db
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root:root@localhost:3306/transactions'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/transactions'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -190,8 +190,10 @@ def refund_no_ui(booking_id):
     refund_orchestrator_url = refund_orchestrator_url.format(booking_id=booking_id)
 
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
+    
     refund = refund_charge(transaction.transaction_id)
     if refund:
+        print("hi")
         transaction.transaction_status = 'refunded'
         db.session.commit()
 
