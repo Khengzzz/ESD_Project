@@ -22,11 +22,11 @@ CREATE TABLE IF NOT EXISTS `subscriber` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `subscriber` (`screening_id`, `user_id`, `user_email`, `notification_status`) VALUES
-(1, 1, 'test@example.com', 'Pending'),
-(1, 2, 'test2@example.com', 'Notified'),
-(1, 3, 'test3@example.com', 'Pending'),
-(2, 1, 'test@example.com', 'Pending'),
-(2, 7, 'test5@example.com', 'Notified');
+(1, 1, 'kheng_hin@yahoo.com', 'Pending'),
+(1, 2, 'ritikab.2022@scis.smu.edu.sg', 'Pending'),
+(1, 3, 'ritika.bajpai17@gmail.com', 'Pending'),
+(2, 1, 'kheng_hin@yahoo.com', 'Pending'),
+(2, 4, 'khsiew.2022@scis.smu.edu.sg', 'Pending');
 
 
 COMMIT;
