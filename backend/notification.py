@@ -131,6 +131,7 @@ def send_email(log_data, routing_key, queue_name):
             recipients = msg['To'].split(',')
         else:
             recipients = msg['To']
+        print(recipients)
         server.sendmail(SENDER_EMAIL, recipients, msg.as_string())
         print("Email sent successfully!")
         
