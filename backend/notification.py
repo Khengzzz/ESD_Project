@@ -84,8 +84,8 @@ def send_email(log_data, routing_key, queue_name):
     elif routing_key == "*.refund": 
         
         msg['Subject'] = 'Refund Notification'
-        # Multiple recipients
-        msg['To'] = log_data["email"]  # Replace with the recipients email addresses
+        # One recipient
+        msg['To'] = log_data["email"]  # Replace with the recipient email address
         
         # Form a custom notification string based on the log data
         notification_string = f"Notification: Refund for booking ID {log_data['booking_id']} "
