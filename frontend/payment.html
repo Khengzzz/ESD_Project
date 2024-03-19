@@ -11,14 +11,30 @@
       background-color: black;
       color: white;
     }
+    .container{
+        width:50%;
+        margin: auto;
+        padding: 15px;
+    }
+    .col img {
+        width:auto;
+        max-height:100%;
+        object-fit: contain;
+    }
     </style>
 </head>
 <body>
     <h1 style="padding: 30px;">Payment</h1>
     <div class="container">
-        <div class="container movie-payment-container">
-            <div class="col">
-                <img src="images/avengers.jpg" class="col-5"/>
+        <div class="row">
+            <div class="col-4 col-img">
+                <img src="images/avengers.jpg" alt="Avengers Image" class="img-fluid"/>
+            </div>
+            <div class="col-8">
+                <h2>Booking Details</h2>
+                <p>Title: Avengers - Infinity War</p>
+                <p>Director: Anthony Russo, Joe Russo</p>
+                <p>Release Date: April 27, 2018</p>
             </div>
         </div>
     </div>
