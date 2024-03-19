@@ -35,7 +35,7 @@ if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
     print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
     sys.exit(0)  # Exit with a success status
 
-@app.route("/payment/<booking_id>", methods=['POST'])
+@app.route("/payment/confirm/<booking_id>", methods=['POST'])
 def processPayment(booking_id):
     if request.is_json:
         try:
@@ -97,10 +97,13 @@ def updateOrder(booking_id, charge_details):
     
     try:
         print('\n-----Invoking bookings microservice-----')
+        booking_URL_confirm = booking_URL_confirm.format(booking_id=booking_id)
+        booking_details = invoke_http(booking_URL_confirm, method='PUT', json={"payment_transaction_id": charge_details["id"],
+                                                                                "email": charge_details['billing_details']['name']})
 
         # Get booking details
-        get_booking_URL = booking_URL_get_booking.format(booking_id=booking_id)
-        booking_details = invoke_http(get_booking_URL, method='GET')
+        booking_URL_get_booking = booking_URL_get_booking.format(booking_id=booking_id)
+        booking_details = invoke_http(booking_URL_get_booking, method='GET')
         print("Booking details:", booking_details)
 
         # Extract necessary information from booking details
@@ -134,8 +137,40 @@ def updateOrder(booking_id, charge_details):
         }
 
 
+@app.route("/payment/cancel/<booking_id>", methods=['POST'])
+def cancel_payment(booking_id):
+    revert_seat_URL = environ.get('revert_seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/revert"
+    booking_URL_cancel = environ.get('booking_URL_cancel') or "http://127.0.0.1:5001/bookings/{booking_id}/cancel"
+    
+    try:
+        print('\n-----Invoking bookings microservice-----')
+
+        # Get booking details
+        booking_URL_cancel = booking_URL_cancel.format(booking_id=booking_id)
+        booking_details = invoke_http(booking_URL_cancel, method='PUT')
+        print("Booking details:", booking_details)
+
+        # Extract necessary information from booking details
+        screening_id = booking_details["data"]["screening_id"]
+        seat_ids = booking_details["data"]["seat_id"]["seats"]  # Extract seat IDs from nested dictionary
+
+        # Update seat status
+        revert_seat_URL = revert_seat_URL.format(screening_id=screening_id)
+        seat_result = invoke_http(revert_seat_URL, method='PUT', json={"seats": seat_ids})
+        print('Seat update result:', seat_result)
+
+        return {
+            "code": 200,
+            "message": "Revert processed successfully"
+        }
+
+    except Exception as e:
+        print("An error occurred:", e)
+        return {
+            "code": 500,
+            "message": "An error occurred while processing request"
+        }
+
 
 if __name__ == "__main__":
-    print("This is flask " + os.path.basename(__file__) +
-        " for changing the seat...")
     app.run(host="0.0.0.0", port=5101, debug=True)

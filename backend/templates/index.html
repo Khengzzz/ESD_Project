@@ -23,5 +23,12 @@
             data-currency="sgd">
         </script>
     </form>
+
+    <!-- Add Cancel Button Form -->
+    <form action="/payment/cancel/{{booking_id}}" method="post">
+        <input type="hidden" name="booking_id" value="{{booking_id}}">
+        <button type="submit">Cancel</button>
+    </form>
+
 </body>
 </html>

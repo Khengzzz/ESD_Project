@@ -51,7 +51,7 @@ services:
       dockerfile: transaction.Dockerfile
     restart: always
     environment:
-      payment_orchestrator_URL: http://payment_orchestrator:5101/payment/{booking_id}
+      payment_orchestrator_URL: http://payment_orchestrator:5101/payment/confirm/{booking_id}
       refund_orchestrator_URL: http://refund_orchestrator:5102/refund/{booking_id}
       dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/transactions
       PYTHONUNBUFFERED: 1
@@ -112,6 +112,9 @@ services:
       seat_URL: http://screening:5000/screenings/manage_seats/{screening_id}/book
       booking_URL_get_booking: http://bookings:5001/bookings/{booking_id}
       booking_URL_confirm: http://bookings:5001/bookings/{booking_id}/confirm
+      revert_seat_URL: http://screening:5000/screenings/manage_seats/{screening_id}/revert
+      booking_URL_cancel: http://bookings:5001/bookings/{booking_id}/cancel
+
       PYTHONUNBUFFERED: 1
     ports:
       - "5101:5101"

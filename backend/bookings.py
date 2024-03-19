@@ -21,7 +21,7 @@ class Bookings(db.Model):
     screening_id = db.Column(db.Integer, nullable=False)  
     seat_id = db.Column(db.JSON, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)  # Added quantity field
-    booking_status = db.Column(db.Enum('Pending', 'Confirmed', 'Refunded'), nullable=False, default='Pending')
+    booking_status = db.Column(db.Enum('Pending', 'Confirmed', 'Refunded', 'Cancelled'), nullable=False, default='Pending')
     payment_transaction_id = db.Column(db.String(255))
     refund_transaction_id = db.Column(db.String(255))
     creation_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
@@ -162,6 +162,41 @@ def confirm_booking(booking_id):
             "message": "An error occurred while updating the booking status.",
             
         }), 500
+
+
+# update payment status in a booking
+@app.route("/bookings/<int:booking_id>/cancel", methods=["PUT"])
+def cancel_booking(booking_id):
+    booking = Bookings.query.get(booking_id)
+
+    if not booking:
+        return jsonify({
+            "code": 404,
+            "message": "Booking not found."
+        }), 404
+
+    if booking.booking_status != 'Pending':
+        return jsonify({
+            "code": 400,
+            "message": "Booking status is not 'Reserved', unable to cancel."
+        }), 400
+
+    try:
+        booking.booking_status = 'Cancelled'
+        db.session.commit()
+
+        return jsonify({
+            "code": 200,
+            "message": "Booking status updated to Cancelled.",
+            "data": booking.json()
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "code": 500,
+            "message": "An error occurred while updating the booking status.",
+            "error": str(e)
+        }), 500
+
 
 
 # update refund status

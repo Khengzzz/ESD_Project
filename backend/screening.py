@@ -123,12 +123,12 @@ def manage_seats(screening_id, type):
             "message": "No seat IDs provided."
         }), 400
 
-    valid_types = ["reserve", "book", "refund"]
+    valid_types = ["reserve", "book", "refund", "revert"]
 
     if type not in valid_types:
         return jsonify({
             "code": 400,
-            "message": "Invalid operation type. Valid types are 'reserve', 'book', and 'refund'."
+            "message": "Invalid operation type. Valid types are 'reserve', 'book', 'refund', and 'revert'."
         }), 400
 
     for seat_id in seat_ids:
@@ -164,12 +164,21 @@ def manage_seats(screening_id, type):
                 }), 400
             seat.seat_status = "available"
 
+        elif type == "revert":
+            if seat.seat_status != "reserved":
+                return jsonify({
+                    "code": 400,
+                    "message": f"Seat {seat_id} is not reserved and cannot be reverted."
+                }), 400
+            seat.seat_status = "available"
+
         db.session.commit()
 
     return jsonify({
         "code": 200,
         "message": f"Seats have been {type}ed successfully."
     }), 200
+
 
 
 

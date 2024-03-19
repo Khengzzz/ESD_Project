@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `booking` (
   `screening_id` INT NOT NULL,
   `seat_id` JSON NOT NULL,
   `quantity` INT NOT NULL,
-  `booking_status` ENUM('Pending', 'Confirmed', 'Refunded') NOT NULL DEFAULT 'Pending',
+  `booking_status` ENUM('Pending', 'Confirmed', 'Refunded', 'Cancelled') NOT NULL DEFAULT 'Pending',
   `payment_transaction_id` VARCHAR(255),
   `refund_transaction_id` VARCHAR(255),
   `creation_timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP

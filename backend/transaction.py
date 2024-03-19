@@ -126,7 +126,7 @@ def index():
     #information=callUrl(testNewTransaction)
     information = {
                     "quantity": 3,
-                    "booking_id": 24
+                    "booking_id": 16
                     }
 
     amount=getTicketQuantity(information)
@@ -166,7 +166,7 @@ def charge():
     db.session.commit()
     
     #json data format and send
-    payment_orch_url = environ.get('payment_orchestrator_URL') or "http://127.0.0.1:5101//payment/{booking_id}"
+    payment_orch_url = environ.get('payment_orchestrator_URL') or "http://127.0.0.1:5101//payment/confirm/{booking_id}"
     payment_orch_url = payment_orch_url.format(booking_id=booking_id)
     
     send_status_result = invoke_http(payment_orch_url, method='POST', json=charge_object )
@@ -188,9 +188,7 @@ def refund_test():
 def refund_no_ui(booking_id):
     refund_orchestrator_url = environ.get('refund_orchestrator_URL') or "http://127.0.0.1:5102/refund/{booking_id}"
     refund_orchestrator_url = refund_orchestrator_url.format(booking_id=booking_id)
-    print("HI")
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
-    print("AAA",transaction)
     refund = refund_charge(transaction.transaction_id)
     if refund:
         transaction.transaction_status = 'refunded'
