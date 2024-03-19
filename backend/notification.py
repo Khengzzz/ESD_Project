@@ -100,22 +100,24 @@ def send_email(log_data, routing_key, queue_name):
         messageText = MIMEText(notification_string,'plain')
         msg.attach(messageText)
 
-    elif routing_key == "*.subsribers": 
-        
-        msg['Subject'] = 'Ticket Availability Notification'
-        # Multiple recipients
-        msg['To'] = log_data["email"]  # Replace with the recipients email addresses
-        
-        # Form a custom notification string based on the log data
-        notification_string = f"The screening now has seats available! Get your tickets now!"
+    elif routing_key == "*.subscribers": 
             
-        # Can remove this if we scrapping failure scenario
-        if 'error_message' in log_data:
-            notification_string += f"Error: {log_data['error_message']}"
+            msg['Subject'] = 'Ticket Availability Notification'
+            
+            # Multiple recipients
+            msg['To'] = log_data["email"] # Replace with the recipients email addresses
+            
+            # Form a custom notification string based on the log data
+            notification_string = f"The screening now has seats available! Get your tickets now!"
+                
+            # Can remove this if we scrapping failure scenario
+            if 'error_message' in log_data:
+                notification_string += f"Error: {log_data['error_message']}"
 
-        # Attach the custom notif string to the email
-        messageText = MIMEText(notification_string,'plain')
-        msg.attach(messageText)
+            # Attach the custom notif string to the email
+            messageText = MIMEText(notification_string,'plain')
+            msg.attach(messageText)
+            
         
     try:
         # Connect to Gmail's SMTP server
@@ -125,8 +127,13 @@ def send_email(log_data, routing_key, queue_name):
         # Login to Gmail's SMTP server
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         # Send email
-        server.sendmail(SENDER_EMAIL, msg['To'], msg.as_string())
+        if ',' in msg['To']:
+            recipients = msg['To'].split(',')
+        else:
+            recipients = msg['To']
+        server.sendmail(SENDER_EMAIL, recipients, msg.as_string())
         print("Email sent successfully!")
+        
     except Exception as e:
         print(f"Failed to send email. Error: {e}")
     finally:

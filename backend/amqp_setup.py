@@ -48,7 +48,7 @@ def create_queue(channel):
     channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.success')
     channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.failure')
     channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.refund')
-    channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.subsribers')
+    channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.subscribers')
 
 if __name__ == "__main__":
     connection = create_connection()
