@@ -10,19 +10,7 @@ from email.mime.multipart import MIMEMultipart
 
 queue_name = 'Notification'
 
-def receive_payment_log(channel, queue_name):
-    try:
-        channel.basic_consume(queue=queue_name, on_message_callback=lambda ch, method, properties, body: callback(ch, method, properties, body, queue_name), auto_ack=True)
-        print('Payment Consumer: Consuming from queue:', queue_name)
-        channel.start_consuming()
-    
-    except pika.exceptions.AMQPError as e:
-        print(f"Payment Consumer: Failed to connect: {e}")
-
-    except KeyboardInterrupt:
-        print("Payment Consumer: Program interrupted by user.")
-
-def receive_refund_log(channel):
+def receive_log(channel):
     try:
         channel.basic_consume(queue=queue_name, on_message_callback=lambda ch, method, properties, body: callback(ch, method, properties, body, queue_name), auto_ack=True)
         print('Refund Consumer: Consuming from queue:', queue_name)
@@ -36,17 +24,18 @@ def receive_refund_log(channel):
 
 def callback(channel, method, properties, body, queue_name):
     print("\nReceived a log by " + __file__)
-    process_log(json.loads(body), queue_name)
+    process_log(json.loads(body), method.routing_key, queue_name)
     print()
 
-def process_log(log_data, queue_name):
+def process_log(log_data, routing_key, queue_name):
     print("Processing log:")
     # Test code to identify queue which message was extracted from
     print("Message came from queue:", queue_name)
+    print("Processing log with routing key:", routing_key)
     # Call email notif function
-    send_email(log_data, queue_name)
+    send_email(log_data, routing_key, queue_name)
 
-def send_email(log_data, queue_name, routing_key):
+def send_email(log_data, routing_key, queue_name):
     # Sender details
     SENDER_EMAIL = 'esdprojectemail@gmail.com'  # Replace with your Gmail email address
     SENDER_PASSWORD = 'tupy hdfh errg rvbp'  # Replace with your Google Account app password
@@ -150,4 +139,4 @@ if __name__ == "__main__":
     print("Connection established successfully")
     channel = connection.channel()
         
-    receive_refund_log(channel)
+    receive_log(channel)
