@@ -157,4 +157,12 @@ p.text span {
 .book-now:hover {
   background-color: #ffcc00;
 }
-  
+
+/* style for payment page movie container */
+.movie-payment-container{
+  background-color: #524f4f;
+  border-radius: 10px;
+  height: auto;
+  padding: 15px;
+  border: 20px;
+}
