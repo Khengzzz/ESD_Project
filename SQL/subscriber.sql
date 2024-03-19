@@ -24,9 +24,10 @@ CREATE TABLE IF NOT EXISTS `subscriber` (
 INSERT INTO `subscriber` (`screening_id`, `user_id`, `user_email`, `notification_status`) VALUES
 (1, 1, 'kheng_hin@yahoo.com', 'Pending'),
 (1, 2, 'ritikab.2022@scis.smu.edu.sg', 'Pending'),
-(1, 3, 'ritika.bajpai17@gmail.com', 'Pending'),
-(2, 1, 'kheng_hin@yahoo.com', 'Pending'),
-(2, 4, 'khsiew.2022@scis.smu.edu.sg', 'Pending');
+(3, 3, 'ritika.bajpai17@gmail.com', 'Pending'),
+(3, 1, 'kheng_hin@yahoo.com', 'Pending'),
+(3, 4, 'khsiew.2022@scis.smu.edu.sg', 'Pending');
+
 
 
 COMMIT;
