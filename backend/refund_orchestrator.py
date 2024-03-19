@@ -106,7 +106,7 @@ def initiateRefund(booking_id, refund_details):
             subscriber_notif_details = {
                 "booking_id": booking_id,
                 "screening_id": screening_id,
-                "email": "; ".join(email_list)
+                "email": ",".join(email_list)
             }
             channel.basic_publish(exchange=exchangename, routing_key="*.subscribers", body=json.dumps(subscriber_notif_details))
             
