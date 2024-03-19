@@ -54,6 +54,3 @@ if __name__ == "__main__":
     connection = create_connection()
     channel = create_channel(connection)
     create_queue(channel)
-
-
-
