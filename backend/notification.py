@@ -102,21 +102,21 @@ def send_email(log_data, routing_key, queue_name):
 
     elif routing_key == "*.subscribers": 
             
-            msg['Subject'] = 'Ticket Availability Notification'
+        msg['Subject'] = 'Ticket Availability Notification'
             
-            # Multiple recipients
-            msg['To'] = log_data["email"] # Replace with the recipients email addresses
+        # Multiple recipients
+        msg['To'] = log_data["email"] # Replace with the recipients email addresses
             
-            # Form a custom notification string based on the log data
-            notification_string = f"The screening now has seats available! Get your tickets now!"
+        # Form a custom notification string based on the log data
+        notification_string = f"The screening now has seats available! Get your tickets now!"
                 
-            # Can remove this if we scrapping failure scenario
-            if 'error_message' in log_data:
-                notification_string += f"Error: {log_data['error_message']}"
+        # Can remove this if we scrapping failure scenario
+        if 'error_message' in log_data:
+            notification_string += f"Error: {log_data['error_message']}"
 
-            # Attach the custom notif string to the email
-            messageText = MIMEText(notification_string,'plain')
-            msg.attach(messageText)
+        # Attach the custom notif string to the email
+        messageText = MIMEText(notification_string,'plain')
+        msg.attach(messageText)
             
         
     try:
