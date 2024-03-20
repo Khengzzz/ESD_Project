@@ -4,6 +4,7 @@ import os, sys
 from invokes import invoke_http
 from os import environ
 import json
+import amqp_connection
 import pika
 
 app = Flask(__name__)
@@ -26,10 +27,10 @@ def check_exchange(channel, exchangename, exchangetype):
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
-# #if the exchange is not yet created, exit the program
-# if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
-#     print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
-#     sys.exit(0)  # Exit with a success status
+#if the exchange is not yet created, exit the program
+if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
+    print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
+    sys.exit(0)  # Exit with a success status
 
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
+import amqp_connection
 import json
 import pika
-import amqp_setup
 
 # Necessary libraries for email notif
 import smtplib
@@ -143,7 +143,7 @@ def send_email(log_data, routing_key, queue_name):
         
 if __name__ == "__main__":
     print("Getting Connection")
-    connection = amqp_setup.create_connection()
+    connection = amqp_connection.create_connection()
     print("Connection established successfully")
     channel = connection.channel()
         
