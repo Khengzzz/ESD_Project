@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify,redirect,url_for
+import stripe
 from flask_cors import CORS
 import os, sys
 from invokes import invoke_http
@@ -6,43 +7,74 @@ from os import environ
 import json
 import amqp_connection
 import pika
+import datetime
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Enum
+from datetime import datetime
 
+#link to db
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/transactions'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+stripe.api_key = "sk_test_51OrGR4EaG7MlgHzNxoK8QmcdiOylptZTRcHBzmdyGpBSccw1suzZraVKcjFuQbH23ztdaABzUJIBn4w5EzRV9V8400rakKh75Q"
+
+db = SQLAlchemy(app)
 CORS(app)
+
+class Transactions(db.Model):
+    transaction_id = db.Column(db.String(255), primary_key=True)
+    booking_id = db.Column(db.Integer, nullable=False)
+    transaction_amount = db.Column(db.Numeric(10, 2), nullable=False)
+    transaction_status = db.Column(Enum('succeeded', 'refunded', name='transaction_status'), default='succeeded', nullable=False)
+    payment_date_time = db.Column(db.DateTime, nullable=False)
+    creation_date_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 exchangename="notification"
 exchangetype="topic"
 
-def create_connection():
-    return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-
-def check_exchange(channel, exchangename, exchangetype):
+def refund_charge(charge_id):
     try:
-        channel.exchange_declare(exchange=exchangename, exchangetype=exchangetype, durable=True)
-        return True
-    except Exception as e:
-        print("Error while declaring exchange:", e)
-        return False
+        refund = stripe.Refund.create(
+            charge=charge_id
+        )
+        return refund
+    except stripe.error.InvalidRequestError as e:
+        # Handle the error, such as charge not found
+        return None
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-channel = connection.channel()
+# def create_connection():
+#     return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 
-#if the exchange is not yet created, exit the program
-if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
-    print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
-    sys.exit(0)  # Exit with a success status
+# def check_exchange(channel, exchangename, exchangetype):
+#     try:
+#         channel.exchange_declare(exchange=exchangename, exchangetype=exchangetype, durable=True)
+#         return True
+#     except Exception as e:
+#         print("Error while declaring exchange:", e)
+#         return False
+
+# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+# channel = connection.channel()
+
+# #if the exchange is not yet created, exit the program
+# if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
+#     print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
+#     sys.exit(0)  # Exit with a success status
 
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):
-    if request.is_json:
-        try:
-            refund_details = request.get_json()  
-            result = initiateRefund(booking_id, refund_details)
-            return jsonify(result)
+    refund_orchestrator_url = environ.get('refund_orchestrator_URL') or "http://127.0.0.1:5102/refund/{booking_id}"
+    refund_orchestrator_url = refund_orchestrator_url.format(booking_id=booking_id)
+    transaction = Transactions.query.filter_by(booking_id=booking_id).first()
+    refund = refund_charge(transaction.transaction_id)
+    if refund:
+        transaction.transaction_status = 'refunded'
+        db.session.commit()
 
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-        
+
+        refund_details = request.get_json()  
+        result = initiateRefund(booking_id, refund)
+        return jsonify(result)
 
     return jsonify({
         "code": 400,
@@ -108,17 +140,17 @@ def initiateRefund(booking_id, refund_details):
                 "screening_id": screening_id,
                 "email": ",".join(email_list)
             }
-            channel.basic_publish(exchange=exchangename, routing_key="*.subscribers", body=json.dumps(subscriber_notif_details))
+            # channel.basic_publish(exchange=exchangename, routing_key="*.subscribers", body=json.dumps(subscriber_notif_details))
             
-            # Refund success, publish message to refund queue informing refund is successful
-            print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')
-            refund_details = {
-                "booking_id": booking_id,
-                "payment_transaction_id": refund_payment_transaction_id,
-                "screening_id": screening_id,
-                "email": refund_user_email
-            }
-            channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(refund_details))
+            # # Refund success, publish message to refund queue informing refund is successful
+            # print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')
+            # refund_details = {
+            #     "booking_id": booking_id,
+            #     "payment_transaction_id": refund_payment_transaction_id,
+            #     "screening_id": screening_id,
+            #     "email": refund_user_email
+            # }
+            # channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(refund_details))
         
         return {
             "code": 200,

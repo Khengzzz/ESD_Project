@@ -43,26 +43,6 @@ services:
       - kong-net
 
   #######################################
-  # Transaction
-  #######################################
-  transaction:
-    build:
-      context: ./
-      dockerfile: transaction.Dockerfile
-    restart: always
-    environment:
-      payment_orchestrator_URL: http://payment_orchestrator:5101/payment/confirm/{booking_id}
-      refund_orchestrator_URL: http://refund_orchestrator:5102/refund/{booking_id}
-      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/transactions
-      PYTHONUNBUFFERED: 1
-    ports:
-      - "5002:5002"
-    networks:
-      - kong-net
-    depends_on:
-      - bookings
-
-  #######################################
   # Subscriber
   #######################################
   subscriber:
@@ -114,7 +94,7 @@ services:
       booking_URL_confirm: http://bookings:5001/bookings/{booking_id}/confirm
       revert_seat_URL: http://screening:5000/screenings/manage_seats/{screening_id}/revert
       booking_URL_cancel: http://bookings:5001/bookings/{booking_id}/cancel
-
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/transactions
       PYTHONUNBUFFERED: 1
     ports:
       - "5101:5101"
@@ -139,6 +119,7 @@ services:
       booking_URL_get_booking: http://bookings:5001/bookings/{booking_id}
       booking_URL_refund: http://bookings:5001/bookings/{booking_id}/refund
       subscriber_URL: http://subscriber:5003/subscribers/subscriptions/{screening_id}
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/transactions
       PYTHONUNBUFFERED: 1
     ports:
       - "5102:5102"
