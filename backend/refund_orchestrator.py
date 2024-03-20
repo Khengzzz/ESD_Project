@@ -86,7 +86,7 @@ def initiateRefund(booking_id, refund_details):
     refund_seat_URL = environ.get('refund_seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/refund"
     booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
     booking_URL_refund = environ.get('booking_URL_refund') or "http://127.0.0.1:5001/bookings/{booking_id}/refund"
-    subscriber_URL = environ.get('subscriber_URL') or "http://127.0.0.1:5003/subscriptions/{screening_id}"
+    subscriber_URL = environ.get('subscriber_URL') or "http://127.0.0.1:5003/subscribers/subscriptions/{screening_id}"
 
     try:
         print('\n-----Invoking bookings microservice for refund-----')
