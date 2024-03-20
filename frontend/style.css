@@ -57,6 +57,10 @@ body {
   background-color: darkgreen; /* Changed taken seat color to dark green */
 }
 
+.seat.reserved {
+  background-color: red; /* Changed reserved seat color to red */
+}
+
 .seat:not(.sold):hover {
   cursor: pointer;
   transform: scale(1.2);
