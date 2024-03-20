@@ -16,17 +16,16 @@ CREATE TABLE IF NOT EXISTS `subscriber` (
   `screening_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   `user_email` VARCHAR(255) NOT NULL,
-  `notification_status` ENUM('Pending', 'Notified') NOT NULL DEFAULT 'Pending',
   `creation_timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`screening_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `subscriber` (`screening_id`, `user_id`, `user_email`, `notification_status`) VALUES
-(1, 1, 'kheng_hin@yahoo.com', 'Pending'),
-(1, 2, 'ritikab.2022@scis.smu.edu.sg', 'Pending'),
-(3, 3, 'ritika.bajpai17@gmail.com', 'Pending'),
-(3, 1, 'kheng_hin@yahoo.com', 'Pending'),
-(3, 4, 'khsiew.2022@scis.smu.edu.sg', 'Pending');
+INSERT INTO `subscriber` (`screening_id`, `user_id`, `user_email`) VALUES
+(1, 1, 'kheng_hin@yahoo.com'),
+(1, 2, 'ritikab.2022@scis.smu.edu.sg'),
+(3, 3, 'ritika.bajpai17@gmail.com'),
+(3, 1, 'kheng_hin@yahoo.com'),
+(3, 4, 'khsiew.2022@scis.smu.edu.sg');
 
 
 
