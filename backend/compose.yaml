@@ -138,7 +138,7 @@ services:
       refund_seat_URL: http://screening:5000/screenings/manage_seats/{screening_id}/refund
       booking_URL_get_booking: http://bookings:5001/bookings/{booking_id}
       booking_URL_refund: http://bookings:5001/bookings/{booking_id}/refund
-      subscriber_URL: http://subscriber:5003/subscribers/subscriptions/{screening_id}
+      subscriber_URL: http://subscriber:5003/subscriptions/{screening_id}
       PYTHONUNBUFFERED: 1
     ports:
       - "5102:5102"
