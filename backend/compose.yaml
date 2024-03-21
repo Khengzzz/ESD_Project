@@ -27,7 +27,7 @@ services:
       - kong-net
 
   #######################################
-  # Screening
+  # Screening Microservice
   #######################################
   screening:
     build:
@@ -43,7 +43,7 @@ services:
       - kong-net
 
   #######################################
-  # Booking
+  # Booking Microservice
   #######################################
   bookings:
     build:
@@ -59,7 +59,7 @@ services:
       - kong-net
 
   #######################################
-  # Subscriber
+  # Subscriber Microservice
   #######################################
   subscriber:
     build:
