@@ -61,7 +61,7 @@ def processRefund(booking_id):
         db.session.commit()
 
 
-        refund_details = request.json 
+        refund_details = request.json
         result = initiateRefund(booking_id, refund)
         return jsonify(result)
 
