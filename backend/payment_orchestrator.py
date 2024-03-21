@@ -67,7 +67,7 @@ def retrieve_charge(charge_id):
 def index():
     information = {
                     "quantity": 3,
-                    "booking_id": 17
+                    "booking_id": 12
                     }
 
     amount=information['quantity']*1500
