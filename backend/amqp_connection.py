@@ -1,8 +1,9 @@
 import time
 import pika
+from os import environ
 
-hostname = "localhost" # default hostname
-port = 5672            # default port
+hostname = environ.get('rabbit_host') or 'localhost'
+port = environ.get('rabbit_port') or 5672
 
 # Instead of hardcoding the values, we can also get them from the environ as shown below
 # hostname = environ.get('hostname') #localhost
@@ -19,7 +20,7 @@ def create_connection(max_retries=12, retry_interval=5):
     # loop to retry connection upto 12 times with a retry interval of 5 seconds
     while retries < max_retries:
         try:
-            print('amqp_connection: Trying connection')
+            print('amqp_connection: Trying connection', hostname, port)
             # connect to the broker
             connection = pika.BlockingConnection(pika.ConnectionParameters
                                 (host=hostname, port=port,

@@ -18,19 +18,8 @@ import json
 exchangename="notification"
 exchangetype="topic"
 
-def create_connection():
-    return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-
-def check_exchange(channel, exchange_name, exchange_type):
-    try:
-        channel.exchange_declare(exchange=exchange_name, exchange_type=exchange_type, durable=True)
-        return True
-    except Exception as e:
-        print("Error while declaring exchange:", e)
-        return False
-
 #connection = create_connection()
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+connection = amqp_connection.create_connection()
 channel = connection.channel()
 
 
@@ -88,7 +77,7 @@ def retrieve_charge(charge_id):
 def index():
     information = {
                     "quantity": 3,
-                    "booking_id": 15
+                    "booking_id": 17
                     }
 
     amount=information['quantity']*1500
@@ -127,13 +116,6 @@ def processPayment():
 
     result = updateOrder(booking_id, charge_object)
     
-    # Establish connection to RabbitMQ broker
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    channel = connection.channel()
-
-    #Declare the exchange if not already declared
-    channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype, durable=True)
-
 
       #  Payment success, publish message to payment.success queue
     print('\n\n-----Publishing the (payment success) message with routing_key=*.success-----')

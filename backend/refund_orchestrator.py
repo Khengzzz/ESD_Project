@@ -42,18 +42,8 @@ def refund_charge(charge_id):
         # Handle the error, such as charge not found
         return None
 
-def create_connection():
-    return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-
-def check_exchange(channel, exchangename, exchangetype):
-    try:
-        channel.exchange_declare(exchange=exchangename, exchangetype=exchangetype, durable=True)
-        return True
-    except Exception as e:
-        print("Error while declaring exchange:", e)
-        return False
-
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+#create a connection and a channel to the broker to publish messages to activity_log, error queues
+connection = amqp_connection.create_connection() 
 channel = connection.channel()
 
 #if the exchange is not yet created, exit the program
