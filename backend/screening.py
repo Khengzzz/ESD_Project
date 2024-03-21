@@ -45,7 +45,6 @@ class Screening(db.Model):
             "creation_timestamp": self.creation_timestamp.isoformat()
         }
 
-
 class Seat(db.Model):
     __tablename__ = 'seat'
 
@@ -178,9 +177,6 @@ def manage_seats(screening_id, type):
         "code": 200,
         "message": f"Seats have been {type}ed successfully."
     }), 200
-
-
-
 
 
 if __name__ == '__main__':
