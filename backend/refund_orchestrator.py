@@ -42,18 +42,8 @@ def refund_charge(charge_id):
         # Handle the error, such as charge not found
         return None
 
-def create_connection():
-    return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-
-def check_exchange(channel, exchangename, exchangetype):
-    try:
-        channel.exchange_declare(exchange=exchangename, exchangetype=exchangetype, durable=True)
-        return True
-    except Exception as e:
-        print("Error while declaring exchange:", e)
-        return False
-
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+#create a connection and a channel to the broker to publish messages to activity_log, error queues
+connection = amqp_connection.create_connection() 
 channel = connection.channel()
 
 #if the exchange is not yet created, exit the program
@@ -63,8 +53,6 @@ if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
 
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):
-    refund_orchestrator_url = environ.get('refund_orchestrator_URL') or "http://127.0.0.1:5102/refund/{booking_id}"
-    refund_orchestrator_url = refund_orchestrator_url.format(booking_id=booking_id)
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
 
     refund = refund_charge(transaction.transaction_id)
@@ -72,7 +60,8 @@ def processRefund(booking_id):
         transaction.transaction_status = 'refunded'
         db.session.commit()
 
-        refund_details = request.get_json()  
+
+        refund_details = request.json 
         result = initiateRefund(booking_id, refund)
         return jsonify(result)
 
@@ -118,6 +107,7 @@ def initiateRefund(booking_id, refund_details):
             if seat['seat_status'] == 'available':
                 seat_available = True
                 break  # Exit loop as soon as one available seat is found
+        print(seat_available)
 
         # Change seat status to available
         refund_seat_URL = refund_seat_URL.format(screening_id=screening_id)

@@ -10,6 +10,21 @@ networks:
 
 services:
 
+  ####################################
+  # RabbitMQ: The messaging broker   
+  ####################################
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: esd-rabbit
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes: 
+      - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ./rabbitmq_definitions.json:/etc/rabbitmq/rabbitmq_definitions.json
+      - rabbitmq_data:/var/lib/rabbitmq
+
   #######################################
   # Screening
   #######################################
@@ -95,6 +110,8 @@ services:
       revert_seat_URL: http://screening:5000/screenings/manage_seats/{screening_id}/revert
       booking_URL_cancel: http://bookings:5001/bookings/{booking_id}/cancel
       dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/transactions
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
       PYTHONUNBUFFERED: 1
     ports:
       - "5101:5101"
@@ -103,6 +120,7 @@ services:
     depends_on:
       - bookings
       - screening
+      - rabbitmq
 
   #######################################
   # Refund Orchestrator
@@ -120,6 +138,8 @@ services:
       booking_URL_refund: http://bookings:5001/bookings/{booking_id}/refund
       subscriber_URL: http://subscriber:5003/subscribers/subscriptions/{screening_id}
       dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/transactions
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
       PYTHONUNBUFFERED: 1
     ports:
       - "5102:5102"
@@ -128,6 +148,41 @@ services:
     depends_on:
       - bookings
       - screening
+      - rabbitmq
+
+  #######################################
+  # Notification
+  #######################################
+  # notification:
+  #   build:
+  #     context: ./
+  #     dockerfile: notification.Dockerfile
+  #   restart: always
+  #   depends_on:
+  #     - rabbitmq
+  #   environment:
+  #     rabbit_host: rabbitmq
+  #     rabbit_port: 5672
+  #     PYTHONUNBUFFERED: 1
+  #   networks:
+  #     - kong-net
+
+  #######################################
+  # AMQP Setup
+  #######################################
+  # amqp_setup:
+  #   build:
+  #     context: ./
+  #     dockerfile: amqp_setup.Dockerfile
+  #   restart: always
+  #   depends_on:
+  #     - rabbitmq
+  #   environment:
+  #     rabbit_host: rabbitmq
+  #     rabbit_port: 5672
+  #     PYTHONUNBUFFERED: 1
+  #   networks:
+  #     - kong-net
 
   #######################################
   # Kong database and migration
