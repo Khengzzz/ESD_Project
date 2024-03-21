@@ -1,5 +1,3 @@
-version: "3.8"
-
 volumes:
   rabbitmq_data: 
   pgdata: 
@@ -7,8 +5,32 @@ volumes:
 networks:
   kong-net:
     driver: bridge
+    name: kong-net
 
 services:
+
+  #######################################
+  # Postgres: The database used by Kong
+  #######################################
+  kong-database:
+    image: postgres:15 # tested 20231101; Ref: https://docs.konghq.com/gateway/latest/support/third-party/
+    platform: linux/amd64  # <- required for Mac M1 chip. Otherwise, can remove
+    restart: always
+    networks:
+      - kong-net
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
   ####################################
   # RabbitMQ: The messaging broker   
@@ -38,8 +60,6 @@ services:
       PYTHONUNBUFFERED: 1
     ports:
       - "5000:5000"
-    networks:
-      - kong-net
 
   #######################################
   # Booking
@@ -54,8 +74,6 @@ services:
       PYTHONUNBUFFERED: 1
     ports:
       - "5001:5001"
-    networks:
-      - kong-net
 
   #######################################
   # Subscriber
@@ -70,8 +88,6 @@ services:
       PYTHONUNBUFFERED: 1
     ports:
       - "5003:5003"
-    networks:
-      - kong-net
 
   #######################################
   # Booking Orchestrator
@@ -88,8 +104,6 @@ services:
       PYTHONUNBUFFERED: 1
     ports:
       - "5100:5100"
-    networks:
-      - kong-net
     depends_on:
       - bookings
       - screening
@@ -115,8 +129,6 @@ services:
       PYTHONUNBUFFERED: 1
     ports:
       - "5101:5101"
-    networks:
-      - kong-net
     depends_on:
       - bookings
       - screening
@@ -143,8 +155,6 @@ services:
       PYTHONUNBUFFERED: 1
     ports:
       - "5102:5102"
-    networks:
-      - kong-net
     depends_on:
       - bookings
       - screening
@@ -153,19 +163,17 @@ services:
   #######################################
   # Notification
   #######################################
-  # notification:
-  #   build:
-  #     context: ./
-  #     dockerfile: notification.Dockerfile
-  #   restart: always
-  #   depends_on:
-  #     - rabbitmq
-  #   environment:
-  #     rabbit_host: rabbitmq
-  #     rabbit_port: 5672
-  #     PYTHONUNBUFFERED: 1
-  #   networks:
-  #     - kong-net
+  notification:
+    build:
+      context: ./
+      dockerfile: notification.Dockerfile
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
 
   #######################################
   # AMQP Setup
@@ -181,35 +189,13 @@ services:
   #     rabbit_host: rabbitmq
   #     rabbit_port: 5672
   #     PYTHONUNBUFFERED: 1
-  #   networks:
-  #     - kong-net
 
   #######################################
-  # Kong database and migration
+  # Kong database migration
   #######################################
-  kong-database:
-    image: postgres:15
-    platform: linux/amd64
-    restart: always
-    networks:
-      - kong-net
-    environment:
-      POSTGRES_DB: kong
-      POSTGRES_USER: kong
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "kong"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
   kong-migration:
-    image: kong/kong-gateway:3.2.2.5
-    platform: linux/amd64
+    image: kong/kong-gateway:3.2.2.5 # tested 20231101
+    platform: linux/amd64  # <- required for Mac M1 chip. Otherwise, can remove
     command: "kong migrations bootstrap"
     restart: on-failure
     networks:
@@ -222,9 +208,12 @@ services:
     depends_on:
       - kong-database
 
+  #######################################
+  # Kong: The API Gateway
+  #######################################
   kong:
-    image: kong/kong-gateway:3.2.2.5
-    platform: linux/amd64
+    image: kong/kong-gateway:3.2.2.5 # tested 20231101
+    platform: linux/amd64  # <- required for Mac M1 chip. Otherwise, can remove
     restart: always
     networks:
       - kong-net
@@ -241,14 +230,15 @@ services:
       KONG_ADMIN_GUI_URL: http://localhost:8002
     depends_on:
       - kong-migration
-    ports:
-      - "8000:8000"
-      - "8443:8443"
-      - "8001:8001"
-      - "8444:8444"
-      - "8002:8002"
-      - "8445:8445"
-      - "8003:8003"
-      - "8446:8446"
-      - "8004:8004"
-      - "8447:8447"
+    ports: # https://docs.konghq.com/gateway/latest/production/networking/default-ports/
+      - "8000:8000" # Takes incoming HTTP traffic from Consumers, and forwards it to upstream Services.
+      - "8443:8443" # Takes incoming HTTPS traffic from Consumers, and forwards it to upstream Services.
+      - "8001:8001" # Admin API. Listens for calls from the command line over HTTP.
+      - "8444:8444" # Admin API. Listens for calls from the command line over HTTPS.
+      - "8002:8002" # Kong Manager (GUI). Listens for HTTP traffic.
+      - "8445:8445" # Kong Manager (GUI). Listens for HTTPS traffic.
+      - "8003:8003" # Dev Portal. Listens for HTTP traffic, assuming Dev Portal is enabled.
+      - "8446:8446" # Dev Portal. Listens for HTTP traffic, assuming Dev Portal is enabled.
+      - "8004:8004" # Dev Portal /files traffic over HTTPS, assuming the Dev Portal is enabled.
+      - "8447:8447" # Dev Portal /files traffic over HTTPS, assuming the Dev Portal is enabled.
+
