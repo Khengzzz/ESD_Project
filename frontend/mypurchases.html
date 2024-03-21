@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-....." crossorigin="anonymous"> 
+    <!-- font awesome library -->
+    <title>My Tickets</title>
+    <style>
+    body {
+      background-color: black;
+      color: white;
+    }
+    .header-row {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px 0;
+        text-align: center;
+        margin-bottom: 150px ;
+    }
+    .ticket-container {
+        margin-top: 100px; 
+        overflow-y: auto;
+
+    }
+    .custom-row {
+        border-radius: 15px; 
+        background-color: #1b1e20; 
+        padding: 10px;
+        width: 60%; 
+        margin:15px;
+        display: flex;
+        justify-content: center;
+        margin-left: 400px;
+    }
+    .icon-text {
+    margin-left: 0.5em; 
+    }
+
+    .align-right {
+    float: right;
+    }
+
+    .refund-button {
+        float: right;
+        margin-right:30px;;
+    }
+    .col-img {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+       
+    
+    </style>
+</head>
+<body>
+    <div class="row header-row">
+        <h1>My Ticket</h1>
+    </div>
+    <div class="ticket-container">
+        <div class="row custom-row">
+            <div class="col-2 col-img">
+                <img src="images/avengers.jpg" alt="Avengers Image" class="img-fluid"/>
+            </div>
+            <div class="col-10">
+                <h4 style="color: rgb(249, 182, 13);"><strong>Avengers: Infinity War</strong></h4>
+                <hr>
+                <p><i class="far fa-clock"></i> <span class="icon-text">April 2nd, 2024 - 4:30 PM</span></p>
+                <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Cinema Hall 1</span></p>
+                <p><strong>Booking ID:</strong> <span class="icon-text">FHE9894230</span></p>
+                <p><strong>Seat:</strong> <span class="icon-text">1, 2, 3, 4</span><button type="button" class="btn btn-danger refund-button">Refund</button></p>
+            </div>
+        </div>
+    
+        <div class="row custom-row ">
+            <div class="col-2 col-img">
+                <img src="images/avatar.jpg" alt="Avatar Image" class="img-fluid"/>
+            </div>
+            <div class="col-10">
+                <h4 style="color: rgb(249, 182, 13);"><strong>Avatar: The Way of Water</strong></h4>
+                <hr>
+                <p><i class="far fa-clock"></i> <span class="icon-text">April 2nd, 2024 - 6:30 PM</span></p>
+                <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Cinema Hall 4</span></p>
+                <p><strong>Booking ID:</strong> <span class="icon-text">FHEF128940</span></p>
+                <p><strong>Seat:</strong> <span class="icon-text">11</span><button type="button" class="btn btn-danger refund-button">Refund</button></p>
+            </div>
+        </div>
+    
+        <div class="row custom-row ">
+            <div class="col-2 col-img">
+                <img src="images/everythingeverywhere.jpg" alt="EEAAW Image" class="img-fluid"/>
+            </div>
+            <div class="col-10">
+                <h4 style="color: rgb(249, 182, 13);"><strong>Everything Everywhere All At Once</strong></h4>
+                <hr>
+                <p><i class="far fa-clock"></i> <span class="icon-text">April 15th, 2024 - 2:30 PM</span></p>
+                <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Cinema Hall 1</span></p>
+                <p><strong>Booking ID:</strong> <span class="icon-text">HIFO93843</span></p>
+                <p><strong>Seat:</strong> <span class="icon-text">3, 4</span><button type="button" class="btn btn-danger refund-button">Refund</button></p>
+            </div>
+        </div>
+    </div>
+    
+    
+</body>
+</html>

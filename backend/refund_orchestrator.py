@@ -1,18 +1,17 @@
 from flask import Flask, render_template, request, jsonify,redirect,url_for
 import stripe
 from flask_cors import CORS
-import os, sys
+import sys
 from invokes import invoke_http
 from os import environ
 import json
 import amqp_connection
-import pika
 import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Enum
 from datetime import datetime
 
-#link to db
+# Link to db
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/transactions'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -32,6 +31,7 @@ class Transactions(db.Model):
 exchangename="notification"
 exchangetype="topic"
 
+# Create refund object from stripeAPI
 def refund_charge(charge_id):
     try:
         refund = stripe.Refund.create(
@@ -39,18 +39,19 @@ def refund_charge(charge_id):
         )
         return refund
     except stripe.error.InvalidRequestError as e:
-        # Handle the error, such as charge not found
         return None
 
-#create a connection and a channel to the broker to publish messages to activity_log, error queues
+# Create a connection and a channel to the broker to publish messages to activity_log, error queues
 connection = amqp_connection.create_connection() 
 channel = connection.channel()
 
 #if the exchange is not yet created, exit the program
 if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
     print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
-    sys.exit(0)  # Exit with a success status
+    sys.exit(0)
 
+
+# Create a refund record, update seat status, update booking status and notify subscribers
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
@@ -61,7 +62,7 @@ def processRefund(booking_id):
         db.session.commit()
 
 
-        refund_details = request.json 
+        refund_details = request.json
         result = initiateRefund(booking_id, refund)
         return jsonify(result)
 
@@ -84,11 +85,9 @@ def initiateRefund(booking_id, refund_details):
         booking_URL_get_booking = booking_URL_get_booking.format(booking_id=booking_id)
         booking_details = invoke_http(booking_URL_get_booking, method='GET')
         
-        # Retrieve the email and payment transaction id of the person who refunded
+        # Extract necessary information
         refund_user_email = booking_details["data"]["user_email"]
         refund_payment_transaction_id = booking_details["data"]["payment_transaction_id"]
-
-        # Extract necessary information
         screening_id = booking_details["data"]["screening_id"]
 
         # Update booking status to "Refunded" and include refund id
