@@ -15,29 +15,29 @@ import pika
 import json
 
 
-# exchangename="notification"
-# exchangetype="topic"
+exchangename="notification"
+exchangetype="topic"
 
-# def create_connection():
-#     return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+def create_connection():
+    return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 
-# def check_exchange(channel, exchange_name, exchange_type):
-#     try:
-#         channel.exchange_declare(exchange=exchange_name, exchange_type=exchange_type, durable=True)
-#         return True
-#     except Exception as e:
-#         print("Error while declaring exchange:", e)
-#         return False
+def check_exchange(channel, exchange_name, exchange_type):
+    try:
+        channel.exchange_declare(exchange=exchange_name, exchange_type=exchange_type, durable=True)
+        return True
+    except Exception as e:
+        print("Error while declaring exchange:", e)
+        return False
 
-# #connection = create_connection()
-# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-# channel = connection.channel()
+#connection = create_connection()
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
 
 
-# #if the exchange is not yet created, exit the program
-# if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
-#     print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
-#     sys.exit(0)  # Exit with a success status
+#if the exchange is not yet created, exit the program
+if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
+    print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
+    sys.exit(0)  # Exit with a success status
 
 
 # Call from booking details
@@ -88,7 +88,7 @@ def retrieve_charge(charge_id):
 def index():
     information = {
                     "quantity": 3,
-                    "booking_id": 20
+                    "booking_id": 15
                     }
 
     amount=information['quantity']*1500
@@ -127,32 +127,32 @@ def processPayment():
 
     result = updateOrder(booking_id, charge_object)
     
-    # # Establish connection to RabbitMQ broker
-    # connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    # channel = connection.channel()
+    # Establish connection to RabbitMQ broker
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
 
-    # Declare the exchange if not already declared
-    #channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype)
+    #Declare the exchange if not already declared
+    channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype, durable=True)
 
 
-        # Payment success, publish message to payment.success queue
-    # print('\n\n-----Publishing the (payment success) message with routing_key=*.success-----')
-    # payment_details = {
-    #         #"booking_id": booking_id,
-    #     "payment_transaction_id": charge_object["id"],
-    #     "email": charge_object["billing_details"]["name"]
-    # }
-    # channel.basic_publish(exchange=exchangename, routing_key="*.success", body=json.dumps(payment_details))
-    # #else:
-        # Payment failure, publish message to payment.error queue
-        # error_details = {
-        #     "booking_id": booking_id,
-        #     "error_message": result["message"],
-        #     "email": charge_details["billing_details"]["name"]
-        # }
-        # channel.basic_publish(exchange=exchangename, routing_key="*.error", body=json.dumps(error_details))
+      #  Payment success, publish message to payment.success queue
+    print('\n\n-----Publishing the (payment success) message with routing_key=*.success-----')
+    payment_details = {
+            #"booking_id": booking_id,
+        "payment_transaction_id": charge_object["id"],
+        "email": charge_object["billing_details"]["name"]
+    }
+    channel.basic_publish(exchange=exchangename, routing_key="*.success", body=json.dumps(payment_details))
+    #else:
+       # Payment failure, publish message to payment.error queue
+    error_details = {
+        "booking_id": booking_id,
+        "error_message": result["message"],
+        "email": charge_object["billing_details"]["name"]
+    }
+    channel.basic_publish(exchange=exchangename, routing_key="*.error", body=json.dumps(error_details))
 
-    # connection.close()
+    connection.close()
 
     if result:
         return render_template('success.html',charge_details=charge_object)
