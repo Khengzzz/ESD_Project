@@ -42,37 +42,26 @@ def refund_charge(charge_id):
         # Handle the error, such as charge not found
         return None
 
-# def create_connection():
-#     return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+#create a connection and a channel to the broker to publish messages to activity_log, error queues
+connection = amqp_connection.create_connection() 
+channel = connection.channel()
 
-# def check_exchange(channel, exchangename, exchangetype):
-#     try:
-#         channel.exchange_declare(exchange=exchangename, exchangetype=exchangetype, durable=True)
-#         return True
-#     except Exception as e:
-#         print("Error while declaring exchange:", e)
-#         return False
-
-# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-# channel = connection.channel()
-
-# #if the exchange is not yet created, exit the program
-# if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
-#     print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
-#     sys.exit(0)  # Exit with a success status
+#if the exchange is not yet created, exit the program
+if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
+    print("\nCreate the 'Exchange' before running this microservice. \nExiting the program.")
+    sys.exit(0)  # Exit with a success status
 
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):
-    refund_orchestrator_url = environ.get('refund_orchestrator_URL') or "http://127.0.0.1:5102/refund/{booking_id}"
-    refund_orchestrator_url = refund_orchestrator_url.format(booking_id=booking_id)
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
+
     refund = refund_charge(transaction.transaction_id)
     if refund:
         transaction.transaction_status = 'refunded'
         db.session.commit()
 
 
-        refund_details = request.get_json()  
+        refund_details = request.json
         result = initiateRefund(booking_id, refund)
         return jsonify(result)
 
@@ -118,6 +107,7 @@ def initiateRefund(booking_id, refund_details):
             if seat['seat_status'] == 'available':
                 seat_available = True
                 break  # Exit loop as soon as one available seat is found
+        print(seat_available)
 
         # Change seat status to available
         refund_seat_URL = refund_seat_URL.format(screening_id=screening_id)
@@ -140,17 +130,17 @@ def initiateRefund(booking_id, refund_details):
                 "screening_id": screening_id,
                 "email": ",".join(email_list)
             }
-            # channel.basic_publish(exchange=exchangename, routing_key="*.subscribers", body=json.dumps(subscriber_notif_details))
+            channel.basic_publish(exchange=exchangename, routing_key="*.subscribers", body=json.dumps(subscriber_notif_details))
             
-            # # Refund success, publish message to refund queue informing refund is successful
-            # print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')
-            # refund_details = {
-            #     "booking_id": booking_id,
-            #     "payment_transaction_id": refund_payment_transaction_id,
-            #     "screening_id": screening_id,
-            #     "email": refund_user_email
-            # }
-            # channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(refund_details))
+            # Refund success, publish message to refund queue informing refund is successful
+            print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')
+            refund_details = {
+                "booking_id": booking_id,
+                "payment_transaction_id": refund_payment_transaction_id,
+                "screening_id": screening_id,
+                "email": refund_user_email
+            }
+            channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(refund_details))
         
         return {
             "code": 200,
