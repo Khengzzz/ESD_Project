@@ -54,6 +54,7 @@ if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
+
     refund = refund_charge(transaction.transaction_id)
     if refund:
         transaction.transaction_status = 'refunded'
