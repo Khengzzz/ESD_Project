@@ -14,7 +14,7 @@ from datetime import datetime
 
 #link to db
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/transactions'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root:root@localhost:3306/transactions'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 stripe.api_key = "sk_test_51OrGR4EaG7MlgHzNxoK8QmcdiOylptZTRcHBzmdyGpBSccw1suzZraVKcjFuQbH23ztdaABzUJIBn4w5EzRV9V8400rakKh75Q"
 
@@ -42,8 +42,8 @@ def refund_charge(charge_id):
         # Handle the error, such as charge not found
         return None
 
-# def create_connection():
-#     return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+def create_connection():
+    return pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 
 # def check_exchange(channel, exchangename, exchangetype):
 #     try:
@@ -53,8 +53,8 @@ def refund_charge(charge_id):
 #         print("Error while declaring exchange:", e)
 #         return False
 
-# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-# channel = connection.channel()
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
 
 # #if the exchange is not yet created, exit the program
 # if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
@@ -72,7 +72,7 @@ def processRefund(booking_id):
         db.session.commit()
 
 
-        refund_details = request.get_json()  
+        refund_details = request.json 
         result = initiateRefund(booking_id, refund)
         return jsonify(result)
 
@@ -140,17 +140,17 @@ def initiateRefund(booking_id, refund_details):
                 "screening_id": screening_id,
                 "email": ",".join(email_list)
             }
-            # channel.basic_publish(exchange=exchangename, routing_key="*.subscribers", body=json.dumps(subscriber_notif_details))
+            channel.basic_publish(exchange=exchangename, routing_key="*.subscribers", body=json.dumps(subscriber_notif_details))
             
-            # # Refund success, publish message to refund queue informing refund is successful
-            # print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')
-            # refund_details = {
-            #     "booking_id": booking_id,
-            #     "payment_transaction_id": refund_payment_transaction_id,
-            #     "screening_id": screening_id,
-            #     "email": refund_user_email
-            # }
-            # channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(refund_details))
+            # Refund success, publish message to refund queue informing refund is successful
+            print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')
+            refund_details = {
+                "booking_id": booking_id,
+                "payment_transaction_id": refund_payment_transaction_id,
+                "screening_id": screening_id,
+                "email": refund_user_email
+            }
+            channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(refund_details))
         
         return {
             "code": 200,

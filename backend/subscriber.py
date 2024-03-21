@@ -5,7 +5,7 @@ from os import environ
 from flask_cors import CORS
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/subscriber'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root:root@localhost:3306/subscriber'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -37,7 +37,7 @@ class Subscriber(db.Model):
 
 
 # get all subscribers to a screening
-@app.route("subscribers/subscriptions/<string:screening_id>")
+@app.route("/subscribers/subscriptions/<string:screening_id>")
 def get_subscribers_by_screening(screening_id):
     subscriber_list = Subscriber.query.filter_by(screening_id=screening_id).all()
 
@@ -56,7 +56,7 @@ def get_subscribers_by_screening(screening_id):
 
 
 # subscribe to a screening
-@app.route("subscribers/subscribe", methods=['POST'])
+@app.route("/subscribers/subscribe", methods=['POST'])
 def subscribe_user():
     screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")
@@ -106,7 +106,7 @@ def subscribe_user():
 
 
 # unsubscribe from a screening
-@app.route("subscribers/unsubscribe", methods=['DELETE'])
+@app.route("/subscribers/unsubscribe", methods=['DELETE'])
 def unsubscribe_user():
     screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")
