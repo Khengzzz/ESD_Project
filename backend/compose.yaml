@@ -154,6 +154,27 @@ services:
       - kong-net
 
   #######################################
+  # My Purchase Orchestrator
+  #######################################
+  my_purchase_orchestrator:
+    build:
+      context: ./
+      dockerfile: my_purchase_orchestrator.Dockerfile
+    image: linyubin123/my_purchase_orchestrator:esd
+    restart: always
+    environment:
+      screening_details_URL: http://screening:5000/screenings/{screening_id}
+      user_booking_URL: http://bookings:5001/bookings/user/{user_id}
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5103:5103"
+    depends_on:
+      - bookings
+      - screening
+    networks:
+      - kong-net
+
+  #######################################
   # Notification
   #######################################
   notification:

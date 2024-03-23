@@ -10,8 +10,8 @@
     <title>My Tickets</title>
     <style>
     body {
-      background-color: black;
-      color: white;
+        background-color: black;
+        color: white;
     }
     .header-row {
         position: fixed;
@@ -25,7 +25,6 @@
     .ticket-container {
         margin-top: 100px; 
         overflow-y: auto;
-
     }
     .custom-row {
         border-radius: 15px; 
@@ -38,13 +37,11 @@
         margin-left: 400px;
     }
     .icon-text {
-    margin-left: 0.5em; 
+        margin-left: 0.5em; 
     }
-
     .align-right {
-    float: right;
+        float: right;
     }
-
     .refund-button {
         float: right;
         margin-right:30px;;
@@ -54,57 +51,76 @@
         justify-content: center;
         align-items: center;
     }
-       
-    
     </style>
 </head>
 <body>
     <div class="row header-row">
         <h1>My Ticket</h1>
     </div>
-    <div class="ticket-container">
-        <div class="row custom-row">
-            <div class="col-2 col-img">
-                <img src="images/avengers.jpg" alt="Avengers Image" class="img-fluid"/>
-            </div>
-            <div class="col-10">
-                <h4 style="color: rgb(249, 182, 13);"><strong>Avengers: Infinity War</strong></h4>
-                <hr>
-                <p><i class="far fa-clock"></i> <span class="icon-text">April 2nd, 2024 - 4:30 PM</span></p>
-                <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Cinema Hall 1</span></p>
-                <p><strong>Booking ID:</strong> <span class="icon-text">FHE9894230</span></p>
-                <p><strong>Seat:</strong> <span class="icon-text">1, 2, 3, 4</span><button type="button" class="btn btn-danger refund-button">Refund</button></p>
-            </div>
-        </div>
-    
-        <div class="row custom-row ">
-            <div class="col-2 col-img">
-                <img src="images/avatar.jpg" alt="Avatar Image" class="img-fluid"/>
-            </div>
-            <div class="col-10">
-                <h4 style="color: rgb(249, 182, 13);"><strong>Avatar: The Way of Water</strong></h4>
-                <hr>
-                <p><i class="far fa-clock"></i> <span class="icon-text">April 2nd, 2024 - 6:30 PM</span></p>
-                <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Cinema Hall 4</span></p>
-                <p><strong>Booking ID:</strong> <span class="icon-text">FHEF128940</span></p>
-                <p><strong>Seat:</strong> <span class="icon-text">11</span><button type="button" class="btn btn-danger refund-button">Refund</button></p>
-            </div>
-        </div>
-    
-        <div class="row custom-row ">
-            <div class="col-2 col-img">
-                <img src="images/everythingeverywhere.jpg" alt="EEAAW Image" class="img-fluid"/>
-            </div>
-            <div class="col-10">
-                <h4 style="color: rgb(249, 182, 13);"><strong>Everything Everywhere All At Once</strong></h4>
-                <hr>
-                <p><i class="far fa-clock"></i> <span class="icon-text">April 15th, 2024 - 2:30 PM</span></p>
-                <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Cinema Hall 1</span></p>
-                <p><strong>Booking ID:</strong> <span class="icon-text">HIFO93843</span></p>
-                <p><strong>Seat:</strong> <span class="icon-text">3, 4</span><button type="button" class="btn btn-danger refund-button">Refund</button></p>
-            </div>
-        </div>
+    <div class="ticket-container" id="ticket-container">
+        <!-- Booking details will be populated here -->
     </div>
+
+
+    <script>
+        // Function to fetch and display bookings for a specific user
+        function fetchBookings(userId) {
+            fetch(`http://127.0.0.1:5103/purchase/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                if (data.length > 0) {
+                    bookingHTML = ""
+                    for(booking of data){
+                        details = booking.data.seats[0]
+
+                        const timestampString = details.movie_date_time;
+                        const timestamp = new Date(timestampString);
+                        const day = ('0' + timestamp.getDate()).slice(-2);
+                        const month = ('0' + (timestamp.getMonth() + 1)).slice(-2);
+                        const year = timestamp.getFullYear();
+                        const hours = ('0' + timestamp.getHours()).slice(-2);
+                        const minutes = ('0' + timestamp.getMinutes()).slice(-2);
+                        const formattedDateTime = `${day}-${month}-${year}, ${hours}:${minutes}`;
+
+                        bookingHTML += `
+                            <div class="row custom-row">
+                                <div class="col-2 col-img">
+                                    <img src="images/everythingeverywhere.jpg" alt="Image" class="img-fluid"/>
+                                </div>
+                                <div class="col-10">
+                                    <h4 style="color: rgb(249, 182, 13);"><strong>${details.movie_name}</strong></h4>
+                                    <hr>
+                                    <p><i class="far fa-clock"></i> <span class="icon-text">${formattedDateTime}</span></p>
+                                    <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Hall ${details.hall_number}</span></p>
+                                    <p><strong>Booking ID:</strong> <span class="icon-text">${details.booking_id}</span></p>
+                                    <p><strong>Seat:</strong> <span class="icon-text">${details.seat_id.join(', ')}</span><button type="button" class="btn btn-danger refund-button" value=${details.booking_id} onclick='hello(this.value)'>Refund</button></p>
+                                </div>
+                            </div>
+                        `;
+
+                        const ticketContainer = document.getElementById('ticket-container');
+                        ticketContainer.innerHTML = ''; // Clear existing content
+                        ticketContainer.innerHTML += bookingHTML;
+                    }
+                    
+                } else {
+                    const ticketContainer = document.getElementById('ticket-container');
+                    ticketContainer.innerHTML = `<p>There is no booking made.</p>`;
+                }
+            })
+            .catch(error => console.error('Error fetching bookings:', error));
+        }
+    
+    
+        // Call fetchBookings function with user ID when the page loads
+        window.onload = function() {
+            const userId = 1; // Replace with the actual user ID
+            fetchBookings(userId);
+        };
+
+    </script>
+    
     
     
 </body>

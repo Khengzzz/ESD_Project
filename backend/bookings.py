@@ -123,6 +123,34 @@ def get_booking_details(booking_id):
         }), 404
 
 
+# get all bookings by user_id
+@app.route("/bookings/user/<int:user_id>", methods=["GET"])
+def get_booking_details_by_user_id(user_id):
+    bookings = db.session.query(Bookings).filter_by(user_id=user_id, booking_status="Confirmed").all()
+
+    if bookings:
+        booking_list = []
+        for booking in bookings:
+            booking_dict = {
+                "booking_id": booking.booking_id,
+                "screening_id": booking.screening_id,
+                "seat_id": booking.seat_id
+            }
+            booking_list.append(booking_dict)
+
+        return jsonify({
+            "code": 200,
+            "data": booking_list
+        }), 200
+    else:
+        return jsonify({
+            "code": 404,
+            "message": "No booking has been made."
+        }), 404
+
+
+
+
 # update payment status in a booking
 @app.route("/bookings/<int:booking_id>/confirm", methods=["PUT"])
 def confirm_booking(booking_id):

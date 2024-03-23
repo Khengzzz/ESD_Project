@@ -84,7 +84,25 @@ def get_all_screenings():
         }), 404
 
 
-# Get details from a screening
+# Get seat details from a screening
+@app.route("/screenings/<string:screening_id>")
+def get_a_screening(screening_id):
+    seat_list = Screening.query.filter_by(screening_id=screening_id).all()
+
+    if seat_list:
+        return jsonify({
+            "code": 200,
+            "data": {
+                "seats": [seat.json() for seat in seat_list]
+            }
+        }), 200
+    else:
+        return jsonify({
+            "code": 404,
+            "message": f"There are no seats for the screening."
+        }), 404
+
+# Get seat details from a screening
 @app.route("/screenings/seats/<string:screening_id>")
 def get_all_seats(screening_id):
     seat_list = Seat.query.filter_by(screening_id=screening_id).all()
