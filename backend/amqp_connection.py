@@ -5,12 +5,8 @@ from os import environ
 hostname = environ.get('rabbit_host') or 'localhost'
 port = environ.get('rabbit_port') or 5672
 
-# Instead of hardcoding the values, we can also get them from the environ as shown below
-# hostname = environ.get('hostname') #localhost
-# port = environ.get('port')         #5672 
 
-
-# function to create a connection to the broker
+# Function to create a connection to the broker
 def create_connection(max_retries=12, retry_interval=5):
     print('amqp_connection: Create_connection')
     
@@ -25,12 +21,7 @@ def create_connection(max_retries=12, retry_interval=5):
             connection = pika.BlockingConnection(pika.ConnectionParameters
                                 (host=hostname, port=port,
                                  heartbeat=3600, blocked_connection_timeout=3600)) # these parameters to prolong the expiration time (in seconds) of the connection
-                # Note about AMQP connection: various network firewalls, filters, gateways (e.g., SMU VPN on wifi), may hinder the connections;
-                # If "pika.exceptions.AMQPConnectionError" happens, may try again after disconnecting the wifi and/or disabling firewalls.
-                # If see: Stream connection lost: ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)
-                # - Try: simply re-run the program or refresh the page.
-                # For rare cases, it's incompatibility between RabbitMQ and the machine running it,
-                # - Use the Docker version of RabbitMQ instead: https://www.rabbitmq.com/download.html
+
             print("amqp_connection: Connection established successfully")
             break  # Connection successful, exit the loop
         except pika.exceptions.AMQPConnectionError as e:
@@ -44,7 +35,7 @@ def create_connection(max_retries=12, retry_interval=5):
     
     return connection
 
-# function to check if the exchange exists
+# Function to check if the exchange exists
 def check_exchange(channel, exchangename, exchangetype):
     try:    
         channel.exchange_declare(exchangename, exchangetype, durable=True, passive=True) 

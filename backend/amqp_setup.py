@@ -7,7 +7,7 @@ port = 5672             # default port
 exchangename = "notification"  # exchange name
 exchangetype = "topic"  # use a 'topic' exchange to enable interaction
 
-
+# Function to establish a connection to RabbitMQ server
 def create_connection(max_retries=12, retry_interval=5):
     print('amqp_setup:create_connection')
     retries = 0
@@ -31,6 +31,7 @@ def create_connection(max_retries=12, retry_interval=5):
 
     return connection
 
+# Function to create a channel on the provided connection
 def create_channel(connection):
     print('amqp_setup:create_channel')
     channel = connection.channel()
@@ -45,6 +46,7 @@ def create_queue(channel):
     print('amqp_setup:create_queue')
     queue_name = 'Notification'
     channel.queue_declare(queue=queue_name, durable=True) # 'durable' makes the queue survive broker restarts
+    # Bind 4 unique routing_keys to determine consumer(s) of the notification
     channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.success')
     channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.failure')
     channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.refund')

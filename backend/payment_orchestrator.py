@@ -10,7 +10,6 @@ from sqlalchemy import Enum
 from datetime import datetime
 import amqp_connection
 
-
 exchangename="notification"
 exchangetype="topic"
 
@@ -30,6 +29,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
 
+# Transactions db and table
 class Transactions(db.Model):
     transaction_id = db.Column(db.String(255), primary_key=True)
     booking_id = db.Column(db.Integer, nullable=False)
@@ -39,7 +39,7 @@ class Transactions(db.Model):
     creation_date_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
-# Write to db method
+# Function to add a new transaction to Transactions db
 def add_transaction_to_database(transaction_id,booking_id, transaction_amount, payment_date_time):
 # Create an instance of the Transaction model
     new_transaction = Transactions(
@@ -51,8 +51,7 @@ def add_transaction_to_database(transaction_id,booking_id, transaction_amount, p
 )
     return new_transaction
 
-
-# Stripe charge functions
+# Function to retrieve a Stripe charge by 'charge_id'
 def retrieve_charge(charge_id):
     try:
         charge = stripe.Charge.retrieve(charge_id)
@@ -61,8 +60,7 @@ def retrieve_charge(charge_id):
         # Handle the error, such as charge not found
         return None
 
-
-# Payment portal to make payment
+# Route handler to render the payment portal page
 @app.route('/payment/payment_portal')
 def index():
     information = {
@@ -75,7 +73,8 @@ def index():
     return render_template('index.html',total_amount=amount,booking_id=booking_id)
 
 
-# Create a charge object after payment complete, update seat status, booking status and notify user
+# Route handler to handle payment processing, creates a charge object after payment complete, update seat and booking status, 
+# and notifies consumers
 @app.route("/payment/charge", methods=['POST'])
 def processPayment():
     token = request.form.get('stripeToken')
@@ -106,24 +105,27 @@ def processPayment():
     # Update seat status and booking details
     result = updateOrder(booking_id, charge_object)
     
-    # Payment success, publish message to payment.success queue
-    print('\n\n-----Publishing the (payment success) message with routing_key=*.success-----')
-    payment_details = {
-            #"booking_id": booking_id,
-        "payment_transaction_id": charge_object["id"],
-        "email": charge_object["billing_details"]["name"]
-    }
-    channel.basic_publish(exchange=exchangename, routing_key="*.success", body=json.dumps(payment_details))
+    # Checks for both successful payment and order update before publishing payment success message
+    if result and result.get('code') == 200:
+        # Payment success, publish message to payment.success queue
+        print('\n\n-----Publishing the (payment success) message with routing_key=*.success-----')
+        payment_details = {
+                #"booking_id": booking_id,
+            "payment_transaction_id": charge_object["id"],
+            "email": charge_object["billing_details"]["name"]
+        }
+        channel.basic_publish(exchange=exchangename, routing_key="*.success", body=json.dumps(payment_details))
 
-    # Payment failure, publish message to payment.error queue
-    error_details = {
-        "booking_id": booking_id,
-        "error_message": result["message"],
-        "email": charge_object["billing_details"]["name"]
-    }
-    channel.basic_publish(exchange=exchangename, routing_key="*.error", body=json.dumps(error_details))
+    else:
+        # Payment failure, publish message to payment.error queue
+        error_details = {
+            "booking_id": booking_id,
+            "error_message": result["message"],
+            "email": charge_object["billing_details"]["name"]
+        }
+        channel.basic_publish(exchange=exchangename, routing_key="*.error", body=json.dumps(error_details))
 
-    connection.close()
+        connection.close()
 
     if result:
         return render_template('success.html',charge_details=charge_object)
@@ -131,9 +133,7 @@ def processPayment():
     else:
         return render_template('error.html',charge_details=charge_object)
 
-
-
-
+# Function to update seat and booking status after successful payment
 def updateOrder(booking_id, charge_object):
     seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/book"
     booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
@@ -180,8 +180,7 @@ def updateOrder(booking_id, charge_object):
             "message": "An error occurred while processing payment"
         }
 
-
-# Called when user cancels booking before payment, reverting the seats to available and booking status to cancelled
+# Route handler to handle cancellation of a booking before payment, reverting the seats to 'Available' and booking status to 'Cancelled'
 @app.route("/payment/cancel/<booking_id>", methods=['POST'])
 def cancel_payment(booking_id):
     revert_seat_URL = environ.get('revert_seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/revert"
@@ -215,7 +214,6 @@ def cancel_payment(booking_id):
             "code": 500,
             "message": "An error occurred while processing request"
         }
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5101, debug=True)

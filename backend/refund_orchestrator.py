@@ -20,6 +20,7 @@ stripe.api_key = "sk_test_51OrGR4EaG7MlgHzNxoK8QmcdiOylptZTRcHBzmdyGpBSccw1suzZr
 db = SQLAlchemy(app)
 CORS(app)
 
+# Transactions db and table
 class Transactions(db.Model):
     transaction_id = db.Column(db.String(255), primary_key=True)
     booking_id = db.Column(db.Integer, nullable=False)
@@ -31,7 +32,7 @@ class Transactions(db.Model):
 exchangename="notification"
 exchangetype="topic"
 
-# Create refund object from stripeAPI
+# Function to create refund object using Stripe API based on 'charge_id'
 def refund_charge(charge_id):
     try:
         refund = stripe.Refund.create(
@@ -51,7 +52,8 @@ if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
     sys.exit(0)
 
 
-# Create a refund record, update seat status, update booking status and notify subscribers
+# Route handler to handle refund requests, retrieves transaction details from the db,
+# attempts to refund the charge using Stripe API and initiates the refund process
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
@@ -71,6 +73,8 @@ def processRefund(booking_id):
         "message": "Invalid JSON input: " + str(request.get_data())
     }), 400
 
+# Function to initiate refund process, updates transaction status in the db, seat_status to 'Available',
+# booking_status to 'Refunded', and notifies subscribers
 def initiateRefund(booking_id, refund_details):
     seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/seats/{screening_id}"
     refund_seat_URL = environ.get('refund_seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/refund"
@@ -122,21 +126,20 @@ def initiateRefund(booking_id, refund_details):
             # Retrieving user_email values and appending them to email_list
             email_list = [subscriber['user_email'] for subscriber in subscribers['data']['subscribers']]
     
-            # Refund success, publish message to new ticket queue informing subscribers that there are slots
+            # Refund success, publish message with routing_key '*.subscribers' informing subscribers for the particular screening
+            # that there are seats available
             print('\n\n-----Publishing the (subscriber notif) message with routing_key=*.subscribers-----')
             subscriber_notif_details = {
-                "booking_id": booking_id,
                 "screening_id": screening_id,
                 "email": ",".join(email_list)
             }
             channel.basic_publish(exchange=exchangename, routing_key="*.subscribers", body=json.dumps(subscriber_notif_details))
             
-            # Refund success, publish message to refund queue informing refund is successful
+            # Refund success, publish message with routing_key '*.refund' informing refunder that their refund is successful
             print('\n\n-----Publishing the (refund success) message with routing_key=*.refund-----')
             refund_details = {
                 "booking_id": booking_id,
                 "payment_transaction_id": refund_payment_transaction_id,
-                "screening_id": screening_id,
                 "email": refund_user_email
             }
             channel.basic_publish(exchange=exchangename, routing_key="*.refund", body=json.dumps(refund_details))

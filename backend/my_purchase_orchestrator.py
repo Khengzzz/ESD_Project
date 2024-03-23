@@ -8,12 +8,13 @@ import json
 app = Flask(__name__)
 CORS(app)
 
+# Route handler to retrieve the purchase list of a particular user
 @app.route("/purchase/<user_id>", methods=['GET'])
 def retrieve_purchase(user_id):
 
     user_booking_URL = environ.get('user_booking_URL') or "http://127.0.0.1:5001/bookings/user/{user_id}"
     try:
-        # Retriving all the bookings from a user 
+        # Retrieving all the bookings from a user 
         print('\n-----Invoking booking microservice-----')
         user_booking_URL = user_booking_URL.format(user_id=user_id)
         bookings = invoke_http(user_booking_URL,method="GET")
