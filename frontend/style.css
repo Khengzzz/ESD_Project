@@ -171,3 +171,17 @@ p.text span {
   border: 20px;
   width: 60%;
 }
+
+.subscribe-btn {
+  background-color: black; /* Changed button color to black */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.subscribe-btn:hover {
+  background-color: #333; /* Changed hover color */
+}
