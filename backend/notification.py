@@ -3,13 +3,14 @@ import amqp_connection
 import json
 import pika
 
-# Necessary libraries for email notif
+# Necessary libraries and modules for email notif
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 queue_name = 'Notification'
 
+# Function to consume from RabbitMQ queue 'Notification'
 def receive_log(channel):
     try:
         channel.basic_consume(queue=queue_name, on_message_callback=lambda ch, method, properties, body: callback(ch, method, properties, body, queue_name), auto_ack=True)
@@ -22,33 +23,35 @@ def receive_log(channel):
     except KeyboardInterrupt:
         print("Refund Consumer: Program interrupted by user.") 
 
+# Function invoked whenever a message is received from RabbitMQ queue
 def callback(channel, method, properties, body, queue_name):
     print("\nReceived a log by " + __file__)
     process_log(json.loads(body), method.routing_key, queue_name)
     print()
 
+# Function to process the log data received from RabbitMQ queue
 def process_log(log_data, routing_key, queue_name):
     print("Processing log:")
-    # Test code to identify queue which message was extracted from
     print("Message came from queue:", queue_name)
     print("Processing log with routing key:", routing_key)
     # Call email notif function
     send_email(log_data, routing_key, queue_name)
 
+# Function to generate and send email to consumer based on routing_key
 def send_email(log_data, routing_key, queue_name):
     # Sender details
-    SENDER_EMAIL = 'esdprojectemail@gmail.com'  # Replace with your Gmail email address
-    SENDER_PASSWORD = 'tupy hdfh errg rvbp'  # Replace with your Google Account app password
+    SENDER_EMAIL = 'esdprojectemail@gmail.com'  # Sender email address
+    SENDER_PASSWORD = 'tupy hdfh errg rvbp'  # Sender app password
 
     # Create a multipart message
     msg = MIMEMultipart()
     msg['From'] = SENDER_EMAIL
     
-    # Craft the email based on payment or refund recipient
+    # Generate the email string based on routing_key
     if routing_key == "*.success":  
         msg['Subject'] = 'Payment Success Notification'
         # One recipient
-        msg['To'] = log_data["email"]  # Replace with the recipient email address
+        msg['To'] = log_data["email"]  
         
         # Form a custom notification string based on the log data
         notification_string = f"Notification: Payment "
@@ -66,7 +69,7 @@ def send_email(log_data, routing_key, queue_name):
     elif routing_key == "*.failure":  
         msg['Subject'] = 'Payment Failure Notification'
         # One recipient
-        msg['To'] = log_data["email"]  # Replace with the recipient email address
+        msg['To'] = log_data["email"]  
         
         # Form a custom notification string based on the log data
         notification_string = f"Notification: Payment "
@@ -108,7 +111,7 @@ def send_email(log_data, routing_key, queue_name):
         msg['To'] = log_data["email"] # Replace with the recipients email addresses
             
         # Form a custom notification string based on the log data
-        notification_string = f"The screening now has seats available! Get your tickets now!"
+        notification_string = f"Screening ID: {log_data['screening_id']} has seats available! Get your tickets now!"
                 
         # Can remove this if we scrapping failure scenario
         if 'error_message' in log_data:
@@ -118,7 +121,6 @@ def send_email(log_data, routing_key, queue_name):
         messageText = MIMEText(notification_string,'plain')
         msg.attach(messageText)
             
-        
     try:
         # Connect to Gmail's SMTP server
         server = smtplib.SMTP('smtp.gmail.com:587')

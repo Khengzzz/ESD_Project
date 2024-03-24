@@ -12,6 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
 
+# Bookings db and table
 class Bookings(db.Model):
     __tablename__ = 'booking'
 
@@ -52,8 +53,7 @@ class Bookings(db.Model):
         }
 
 
-
-# get all bookings
+# Route handler to retrieve all bookings
 @app.route("/bookings")
 def get_all_bookings():
     booking_list = Bookings.query.all()
@@ -71,7 +71,7 @@ def get_all_bookings():
         }), 404
 
 
-# create a booking record
+# Route handler to create a new booking record
 @app.route("/bookings", methods=["POST"])
 def create_booking():
     data = request.json
@@ -105,7 +105,7 @@ def create_booking():
     }), 201
 
 
-# get booking details by booking_id
+# Route handler to retrieve booking details by 'booking_id'
 @app.route("/bookings/<int:booking_id>", methods=["GET"])
 def get_booking_details(booking_id):
 
@@ -123,7 +123,7 @@ def get_booking_details(booking_id):
         }), 404
 
 
-# get all bookings by user_id
+# Route handler to retrieve all bookings associated with a particular 'user_id'
 @app.route("/bookings/user/<int:user_id>", methods=["GET"])
 def get_booking_details_by_user_id(user_id):
     bookings = db.session.query(Bookings).filter_by(user_id=user_id, booking_status="Confirmed").all()
@@ -150,9 +150,7 @@ def get_booking_details_by_user_id(user_id):
         }), 404
 
 
-
-
-# update payment status in a booking
+# Route handler to update booking status to 'Confirmed' for a specific 'booking_id'
 @app.route("/bookings/<int:booking_id>/confirm", methods=["PUT"])
 def confirm_booking(booking_id):
     booking = Bookings.query.get(booking_id)
@@ -193,7 +191,7 @@ def confirm_booking(booking_id):
         }), 500
 
 
-# update payment status in a booking
+# Route handler to update booking status to 'Cancelled' for a specific 'booking_id'
 @app.route("/bookings/<int:booking_id>/cancel", methods=["PUT"])
 def cancel_booking(booking_id):
     booking = Bookings.query.get(booking_id)
@@ -227,8 +225,7 @@ def cancel_booking(booking_id):
         }), 500
 
 
-
-# update refund status
+# Route handler to update booking status to 'Refunded' for a specific 'booking_id'
 @app.route("/bookings/<int:booking_id>/refund", methods=["PUT"])
 def refund_booking(booking_id):
     booking = Bookings.query.get(booking_id)

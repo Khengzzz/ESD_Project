@@ -11,6 +11,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
 
+# Screening db and table
 class Screening(db.Model):
     __tablename__ = 'screening'
 
@@ -44,7 +45,7 @@ class Screening(db.Model):
             "capacity": self.capacity,
             "creation_timestamp": self.creation_timestamp.isoformat()
         }
-
+# Seat table
 class Seat(db.Model):
     __tablename__ = 'seat'
 
@@ -65,7 +66,7 @@ class Seat(db.Model):
         }
 
 
-# Get all screening details
+# Route handler to retrieve all screening details
 @app.route("/screenings")
 def get_all_screenings():
     screening_list = Screening.query.all()
@@ -84,7 +85,7 @@ def get_all_screenings():
         }), 404
 
 
-# Get seat details from a screening
+# Route handler to retrieve details from a specific screening based on 'screening_id'
 @app.route("/screenings/<string:screening_id>")
 def get_a_screening(screening_id):
     seat_list = Screening.query.filter_by(screening_id=screening_id).all()
@@ -102,7 +103,7 @@ def get_a_screening(screening_id):
             "message": f"There are no seats for the screening."
         }), 404
 
-# Get seat details from a screening
+# Route handler to retrieve seat details from a specific screening based on 'screening_id'
 @app.route("/screenings/seats/<string:screening_id>")
 def get_all_seats(screening_id):
     seat_list = Seat.query.filter_by(screening_id=screening_id).all()
@@ -121,7 +122,7 @@ def get_all_seats(screening_id):
         }), 404
 
 
-# Update seat status from a screening
+# Route handler to update seat status for a specific screening based on 'screening_id' and operation type
 @app.route("/screenings/manage_seats/<screening_id>/<type>", methods=["PUT"])
 def manage_seats(screening_id, type):
     data = request.json

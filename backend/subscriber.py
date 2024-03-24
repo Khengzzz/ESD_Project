@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-
+# Subscriber db and table
 class Subscriber(db.Model):
     __tablename__ = 'subscriber'
 
@@ -36,7 +36,7 @@ class Subscriber(db.Model):
         }
 
 
-# get all subscribers to a screening
+# Route handler to retrieve all subscribers for a specific screening based on 'screening_id'
 @app.route("/subscribers/subscriptions/<string:screening_id>")
 def get_subscribers_by_screening(screening_id):
     subscriber_list = Subscriber.query.filter_by(screening_id=screening_id).all()
@@ -55,7 +55,7 @@ def get_subscribers_by_screening(screening_id):
         }), 404
 
 
-# subscribe to a screening
+# Route handler to subscribe a user to a screening
 @app.route("/subscribers/subscribe", methods=['POST'])
 def subscribe_user():
     screening_id = request.args.get("screening_id")
@@ -105,7 +105,7 @@ def subscribe_user():
     ), 201
 
 
-# unsubscribe from a screening
+# Route handler to unsubscribe a user from a screening
 @app.route("/subscribers/unsubscribe", methods=['DELETE'])
 def unsubscribe_user():
     screening_id = request.args.get("screening_id")
