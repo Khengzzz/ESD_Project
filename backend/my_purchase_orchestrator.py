@@ -31,6 +31,7 @@ def retrieve_purchase(user_id):
             seat_id = screening["seat_id"]["seats"]
             details["data"]["seats"][0]["seat_id"] = seat_id
             details["data"]["seats"][0]["booking_id"] = screening["booking_id"]
+            details["data"]["seats"][0]["transaction_id"] = screening["transaction_id"]
             purchase_list.append(details)
             idx += 1
             

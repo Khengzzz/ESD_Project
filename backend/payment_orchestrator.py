@@ -64,15 +64,15 @@ def retrieve_charge(charge_id):
 
 # Payment portal to make payment
 @app.route('/payment/payment_portal')
-def index():
+def paymentPage():
     information = {
                     "quantity": 3,
-                    "booking_id": 12
+                    "booking_id": 25
                     }
 
     amount=information['quantity']*1500
     booking_id=information["booking_id"]
-    return render_template('index.html',total_amount=amount,booking_id=booking_id)
+    return render_template('payment.html',total_amount=amount,booking_id=booking_id)
 
 
 # Create a charge object after payment complete, update seat status, booking status and notify user

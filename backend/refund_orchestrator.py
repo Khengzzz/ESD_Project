@@ -54,22 +54,19 @@ if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
 # Create a refund record, update seat status, update booking status and notify subscribers
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):
+    print(booking_id)
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
-
     refund = refund_charge(transaction.transaction_id)
+
     if refund:
         transaction.transaction_status = 'refunded'
         db.session.commit()
 
-
-        refund_details = request.json
         result = initiateRefund(booking_id, refund)
-        return jsonify(result)
+        return render_template('my_purchase.html', result)
 
-    return jsonify({
-        "code": 400,
-        "message": "Invalid JSON input: " + str(request.get_data())
-    }), 400
+    return jsonify({"error": "Failed to process refund"})
+
 
 def initiateRefund(booking_id, refund_details):
     seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/seats/{screening_id}"

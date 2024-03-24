@@ -134,7 +134,8 @@ def get_booking_details_by_user_id(user_id):
             booking_dict = {
                 "booking_id": booking.booking_id,
                 "screening_id": booking.screening_id,
-                "seat_id": booking.seat_id
+                "seat_id": booking.seat_id,
+                "transaction_id": booking.payment_transaction_id
             }
             booking_list.append(booking_dict)
 
