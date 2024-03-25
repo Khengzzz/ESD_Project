@@ -3,9 +3,11 @@ from flask_cors import CORS
 import os, sys
 from invokes import invoke_http
 from os import environ
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
 CORS(app)
+metrics = PrometheusMetrics(app)
 
 # Route handler to handle incoming booking requests
 @app.route("/create_booking", methods=['POST'])
@@ -84,5 +86,5 @@ def processBooking(booking_details):
 
 if __name__ == "__main__":
     print("This is booking orchestrator...")
-    app.run(host="0.0.0.0", port=5100, debug=True) 
+    app.run(host="0.0.0.0", port=5100, debug=False) 
     # used 5103, different port 

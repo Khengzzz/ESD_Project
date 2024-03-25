@@ -1,0 +1,48 @@
+[
+    {
+      "targets": [
+        "app:1234"
+      ],
+      "labels": {
+        "env": "dev",
+        "job": "docker"
+      }
+    },
+    {
+      "targets": [
+        "screening:5000"
+      ],
+      "labels": {
+        "env": "dev",
+        "job": "docker"
+      }
+    },
+    {
+      "targets": [
+        "booking_orchestrator:5100"
+      ],
+      "labels": {
+        "env": "dev",
+        "job": "docker"
+      }
+    },
+    {
+      "targets": [
+        "payment_orchestrator:5101"
+      ],
+      "labels": {
+        "env": "dev",
+        "job": "docker"
+      }
+    },
+    {
+      "targets": [
+        "refund_orchestrator:5102"
+      ],
+      "labels": {
+        "env": "dev",
+        "job": "docker"
+      }
+    }
+  ]
+  
