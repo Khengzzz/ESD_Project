@@ -10,12 +10,15 @@ import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Enum
 from datetime import datetime
+from prometheus_flask_exporter import PrometheusMetrics
 
 # Link to db
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/transactions'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 stripe.api_key = "sk_test_51OrGR4EaG7MlgHzNxoK8QmcdiOylptZTRcHBzmdyGpBSccw1suzZraVKcjFuQbH23ztdaABzUJIBn4w5EzRV9V8400rakKh75Q"
+
+metrics = PrometheusMetrics(app)
 
 db = SQLAlchemy(app)
 CORS(app)
@@ -156,4 +159,4 @@ def initiateRefund(booking_id, refund_details):
 
 if __name__ == "__main__":
     print("This is refund orchestrator...")
-    app.run(host="0.0.0.0", port=5102, debug=True)
+    app.run(host="0.0.0.0", port=5102, debug=False)

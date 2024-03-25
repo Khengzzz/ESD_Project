@@ -3,10 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from os import environ
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/screening'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+metrics = PrometheusMetrics(app)
 
 db = SQLAlchemy(app)
 CORS(app)
@@ -199,4 +202,4 @@ def manage_seats(screening_id, type):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
