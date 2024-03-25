@@ -128,13 +128,8 @@
             <p class="first-paragraph">Hi, User 1<span> &#128075;</span></p>
             <p><span style="font-weight: bold; font-size: 1.5em;">Welcome back</span></p>
           </div>
-          <div class="notification-bell" id="notification">
-          </div>
       </div>
       
-      <div id="display">
-        
-      </div>
       <div class="search-bar-container">
         <input class="form-control search-bar" type="search" placeholder="&#x1F50D;  Search" aria-label="Search">
       </div>
@@ -197,6 +192,7 @@
             <div class="card-body">
               <h5 class="card-title">Avatar: The Way of Water</h5>
               <p class="card-text">Sci-fi, Action</p>
+              <p class="card-text">2024-05-05 18:00:00</p>
             </div>
           </div>
         </div>
@@ -207,6 +203,7 @@
             <div class="card-body">
               <h5 class="card-title">Ant-Man and the Wasp: Quantumania</h5>
               <p class="card-text">Action, Adventure</p>
+              <p class="card-text">2024-05-04 20:00:00</p>
             </div>
           </div>
         </div>
@@ -217,6 +214,7 @@
             <div class="card-body">
               <h5 class="card-title">Everything Everywhere All At Once</h5>
               <p class="card-text">Sci-fi, Action</p>
+              <p class="card-text">2024-05-05 14:00:00</p>
             </div>
           </div>
         </div>
@@ -227,6 +225,7 @@
             <div class="card-body">
               <h5 class="card-title">Elvis</h5>
               <p class="card-text">Musical, Drama</p>
+              <p class="card-text">2024-05-06 20:00:00</p>
             </div>
           </div>
         </div>
@@ -259,30 +258,6 @@
 
   <!-- JavaScript -->
   <script>
-    // var email = localStorage.getItem("email");
-    // var userId = localStorage.getItem("userid");
-
-    function updateNotification() {
-        // Define the data object to send
-        const data = {
-            user_email: "test@gmail.com",
-            creation_timestamp: new Date().toISOString()
-        };
-        user_email = "test@gmail.com"
-        // Stringify the JSON data
-        const jsonData = JSON.stringify(data);
-
-        // Update the HTML content of the notification bell div
-        document.getElementById("notification").innerHTML = `
-            <form id="subscriptionForm" action="http://127.0.0.1:5003/subscribers/subscribe?screening_id=1&user_id=10&email=a@gmail.com" class="subscribe-form" method="post">
-                <!-- Hidden input field to hold the JSON data -->
-                <button class="btn btn-outline-primary" type="submit" id="notificationButton">
-                    <img src="images/notification.png" alt="Notification Bell" width="30" height="30">
-                </button>
-            </form>
-        `;}
-
-    updateNotification()
 
   </script>
 </body>
