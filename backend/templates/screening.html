@@ -126,18 +126,27 @@
       fetch(`http://127.0.0.1:5003/subscribers/subscriptions/${screeningId}`)
       .then(response => response.json())
       .then(data => {
-          if (data.code === 200) {
-            const userIdList = data.data.subscribers.map(subscriber => subscriber.user_id);
-            if (userIdList.includes(userId)) {
-                unsubscribeUser(screeningId);
-            } else {
-                subscribeUser(screeningId);
-            }
-          } else {
-            subscribeUser(screeningId)
-          }
+        console.log(data);
+        if (data.code === 200) {
+          const userIdList = data.data.subscribers.map(subscriber => subscriber.user_id);
+          console.log(userIdList);
+          console.log(userId);
+          checkSubscription(userIdList, userId, screeningId);
+        } else {
+          subscribeUser(screeningId)
+        }
       })
       .catch(error => console.error('Error fetching subscribers:', error));
+    }
+
+    function checkSubscription(userIdList, userId, screeningId) {
+      if (userIdList.includes(userId)) {
+        console.log("User is subscribed");
+        unsubscribeUser(screeningId);
+      } else {
+        console.log("User is not subscribed");
+        subscribeUser(screeningId);
+      }
     }
 
     function subscribeUser(screening_id) {
