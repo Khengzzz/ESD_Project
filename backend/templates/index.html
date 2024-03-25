@@ -128,13 +128,7 @@
             <p class="first-paragraph">Hi, User 1<span> &#128075;</span></p>
             <p><span style="font-weight: bold; font-size: 1.5em;">Welcome back</span></p>
           </div>
-          <div class="notification-bell">
-              <!-- Form for subscription -->
-              <form id="subscriptionForm" class="subscribe-form" method="post">
-                <button class="btn btn-outline-primary" type="button" id="notificationButton" onclick="submitSubscriptionForm()">
-                  <img src="images/notification.png" alt="Notification Bell" width="30" height="30">
-                </button>
-              </form>
+          <div class="notification-bell" id="notification">
           </div>
       </div>
       
@@ -265,56 +259,31 @@
 
   <!-- JavaScript -->
   <script>
-    var email = localStorage.getItem("email");
-    var userId = localStorage.getItem("userid");
-    // Retrieve email and userID from local storage
-    // khsiew.2022@smu.edu.sg user 1, another email user 2 
-    if (email) {
-      // Display user information on the homepage
-      document.getElementById("display").innerHTML = "Logged in as: " + email + " UserID: " + userId;
-    }
+    // var email = localStorage.getItem("email");
+    // var userId = localStorage.getItem("userid");
 
-    function submitSubscriptionForm() {
-      // Prompt user for screening ID
-      var selection = prompt("Please provide the Screening ID:");
+    function updateNotification() {
+        // Define the data object to send
+        const data = {
+            user_email: "test@gmail.com",
+            creation_timestamp: new Date().toISOString()
+        };
+        user_email = "test@gmail.com"
+        // Stringify the JSON data
+        const jsonData = JSON.stringify(data);
 
-      // Check if the user clicked "Cancel"
-      if (selection === null) {
-          return; // Exit the function without further action
-      }
+        // Update the HTML content of the notification bell div
+        document.getElementById("notification").innerHTML = `
+            <form id="subscriptionForm" action="http://127.0.0.1:5003/subscribers/subscribe?screening_id=1&user_id=10&email=a@gmail.com" class="subscribe-form" method="post">
+                <!-- Hidden input field to hold the JSON data -->
+                <button class="btn btn-outline-primary" type="submit" id="notificationButton">
+                    <img src="images/notification.png" alt="Notification Bell" width="30" height="30">
+                </button>
+            </form>
+        `;}
 
-      // Validate that the input is a positive integer
-      while (!/^[1-9]\d*$/.test(selection)) {
-          alert("Please provide a valid Screening ID (positive integer).");
-          selection = prompt("Please provide the Screening ID:");
+    updateNotification()
 
-          // Check if the user clicked "Cancel" during the loop
-          if (selection === null) {
-              return; // Exit the function without further action
-          }
-      }
-
-      // Set the form action dynamically with the selected screening ID and userId
-      var form = document.getElementById("subscriptionForm");
-      form.action = "http://127.0.0.1:5003/subscribers/subscribe?screening_id=" + selection + "&user_id=" + localStorage.getItem("userid");
-
-      // Set user_email and creation_timestamp as hidden input fields
-      var userEmailInput = document.createElement("input");
-      userEmailInput.type = "hidden";
-      userEmailInput.name = "user_email";
-      userEmailInput.value = JSON.stringify({ user_email: localStorage.getItem("email") });
-      form.appendChild(userEmailInput);
-
-      var creationTimestampInput = document.createElement("input");
-      creationTimestampInput.type = "hidden";
-      creationTimestampInput.name = "creation_timestamp";
-      creationTimestampInput.value = JSON.stringify({creation_timestamp: new Date().toISOString()});
-      form.appendChild(creationTimestampInput);
-      
-      // Submit the form
-      form.submit();
-    }
-    
   </script>
 </body>
 </html>

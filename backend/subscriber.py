@@ -17,22 +17,19 @@ class Subscriber(db.Model):
     screening_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, primary_key=True)
     user_email = db.Column(db.String(255), nullable=False)
-    creation_timestamp = db.Column(db.TIMESTAMP, default=datetime.utcnow)
 
 
-    def __init__(self, screening_id, user_id, user_email, creation_timestamp):
+    def __init__(self, screening_id, user_id, user_email):
         self.screening_id = screening_id
         self.user_id = user_id
         self.user_email = user_email
-        self.creation_timestamp = creation_timestamp
 
 
     def json(self):
         return {
             "screening_id": self.screening_id, 
             "user_id": self.user_id,
-            "user_email": self.user_email, 
-            "creation_timestamp": self.creation_timestamp.isoformat()
+            "user_email": self.user_email
         }
 
 
@@ -60,6 +57,7 @@ def get_subscribers_by_screening(screening_id):
 def subscribe_user():
     screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")
+    email = request.args.get("email")
     if (db.session.scalars(
         db.select(Subscriber).filter_by(screening_id=screening_id, user_id=user_id).
         limit(1)
@@ -77,9 +75,8 @@ def subscribe_user():
         ), 400
 
 
-    data = request.get_json()
-    user_subscription = Subscriber(screening_id, user_id, **data)
 
+    user_subscription = Subscriber(screening_id, user_id, email)
 
     try:
         db.session.add(user_subscription)

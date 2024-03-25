@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS `subscriber` (
   `screening_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   `user_email` VARCHAR(255) NOT NULL,
-  `creation_timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`screening_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
