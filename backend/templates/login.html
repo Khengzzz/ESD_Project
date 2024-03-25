@@ -141,14 +141,47 @@ button{
     <form>
         <h3>Starlight Cinema</h3>
 
-        <label for="username">Username</label>
-        <input type="text" placeholder="Email or Phone" id="username">
+        <label for="email">Email</label>
+        <input type="text" placeholder="Email" id="email">
 
         <label for="password">Password</label>
         <input type="password" placeholder="Password" id="password">
 
-        <button>Log In</button>
+        <button type="button" onclick="login()">Log In</button>
 
+        <script>
+            function login() {
+                event.preventDefault(); // Prevent default form submission
+        
+                // Retrieve email and password from input fields
+                var email = document.getElementById("email").value;
+                var password = document.getElementById("password").value;
+        
+                // Check if email is in a valid format
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+                // Conduct a simple check for demonstration
+                // Email format + Password field not empty
+                if (emailRegex.test(email) && password.length != 0) {
+                    // Store email in local storage
+                    localStorage.setItem("email", email);
+                    // khsiew.2022@smu.edu.sg user 1, another email user 2
+                    if (email == "khsiew.2022@smu.edu.sg") {
+                        localStorage.setItem("userid", 1)
+                    }
+                    else {
+                        localStorage.setItem("userid", 2)
+                    }
+                    
+                    // Redirect to homepage
+                    window.location.href = "index.html";
+                } else {
+                    // Alert to check for validation failure
+                    alert("Invalid email or password. Please try again.");
+                }
+            }
+        </script>
     </form>
+
 </body>
 </html>

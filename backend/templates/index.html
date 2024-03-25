@@ -129,12 +129,18 @@
             <p><span style="font-weight: bold; font-size: 1.5em;">Welcome back</span></p>
           </div>
           <div class="notification-bell">
-              <button class="btn btn-outline-primary" type="button" id="notificationButton">
+              <!-- Form for subscription -->
+              <form id="subscriptionForm" class="subscribe-form" method="post">
+                <button class="btn btn-outline-primary" type="button" id="notificationButton" onclick="submitSubscriptionForm()">
                   <img src="images/notification.png" alt="Notification Bell" width="30" height="30">
-              </button>
+                </button>
+              </form>
           </div>
       </div>
-          
+      
+      <div id="display">
+        
+      </div>
       <div class="search-bar-container">
         <input class="form-control search-bar" type="search" placeholder="&#x1F50D;  Search" aria-label="Search">
       </div>
@@ -257,12 +263,58 @@
   <!-- Bootstrap JS and your JavaScript code here -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-  <!-- JavaScript for notification bell -->
+  <!-- JavaScript -->
   <script>
-    document.getElementById("notificationButton").addEventListener("click", function() {
-      // Code to display notifications
-      alert("Notifications clicked!");
-    });
+    var email = localStorage.getItem("email");
+    var userId = localStorage.getItem("userid");
+    // Retrieve email and userID from local storage
+    // khsiew.2022@smu.edu.sg user 1, another email user 2 
+    if (email) {
+      // Display user information on the homepage
+      document.getElementById("display").innerHTML = "Logged in as: " + email + " UserID: " + userId;
+    }
+
+    function submitSubscriptionForm() {
+      // Prompt user for screening ID
+      var selection = prompt("Please provide the Screening ID:");
+
+      // Check if the user clicked "Cancel"
+      if (selection === null) {
+          return; // Exit the function without further action
+      }
+
+      // Validate that the input is a positive integer
+      while (!/^[1-9]\d*$/.test(selection)) {
+          alert("Please provide a valid Screening ID (positive integer).");
+          selection = prompt("Please provide the Screening ID:");
+
+          // Check if the user clicked "Cancel" during the loop
+          if (selection === null) {
+              return; // Exit the function without further action
+          }
+      }
+
+      // Set the form action dynamically with the selected screening ID and userId
+      var form = document.getElementById("subscriptionForm");
+      form.action = "http://127.0.0.1:5003/subscribers/subscribe?screening_id=" + selection + "&user_id=" + localStorage.getItem("userid");
+
+      // Set user_email and creation_timestamp as hidden input fields
+      var userEmailInput = document.createElement("input");
+      userEmailInput.type = "hidden";
+      userEmailInput.name = "user_email";
+      userEmailInput.value = JSON.stringify({ user_email: localStorage.getItem("email") });
+      form.appendChild(userEmailInput);
+
+      var creationTimestampInput = document.createElement("input");
+      creationTimestampInput.type = "hidden";
+      creationTimestampInput.name = "creation_timestamp";
+      creationTimestampInput.value = JSON.stringify({creation_timestamp: new Date().toISOString()});
+      form.appendChild(creationTimestampInput);
+      
+      // Submit the form
+      form.submit();
+    }
+    
   </script>
 </body>
 </html>

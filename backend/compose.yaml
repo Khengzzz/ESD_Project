@@ -96,7 +96,7 @@ services:
     build:
       context: ./
       dockerfile: booking_orchestrator.Dockerfile
-    image: linyubin123/booking_orchestrator:esd
+    image: khsiewsmu/booking_orchestrator:esd
     restart: always
     environment:
       screening_URL_reserve: http://screening:5000/screenings/manage_seats/{screening_id}/reserve
@@ -117,7 +117,7 @@ services:
     build:
       context: ./
       dockerfile: payment_orchestrator.Dockerfile
-    image: linyubin123/payment_orchestrator:esd
+    image: khsiewsmu/payment_orchestrator:esd
     restart: always
     environment:
       seat_URL: http://screening:5000/screenings/manage_seats/{screening_id}/book
@@ -145,7 +145,7 @@ services:
     build:
       context: ./
       dockerfile: refund_orchestrator.Dockerfile
-    image: linyubin123/refund_orchestrator:esd
+    image: khsiewsmu/refund_orchestrator:esd
     restart: always
     environment:
       seat_URL: http://screening:5000/screenings/seats/{screening_id}
@@ -173,7 +173,7 @@ services:
     build:
       context: ./
       dockerfile: my_purchase_orchestrator.Dockerfile
-    image: linyubin123/my_purchase_orchestrator:esd
+    image: khsiewsmu/my_purchase_orchestrator:esd
     restart: always
     environment:
       screening_details_URL: http://screening:5000/screenings/{screening_id}

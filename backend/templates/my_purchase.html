@@ -116,7 +116,7 @@
 
         // Call fetchBookings function with user ID when the page loads
         window.onload = function() {
-            const userId = 1; // Replace with the actual user ID
+            const userId = localStorage.getItem("userid"); // Replace with the actual user ID
             fetchBookings(userId);
         };
     </script>
