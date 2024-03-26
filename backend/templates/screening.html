@@ -121,6 +121,7 @@
     var email = localStorage.getItem("email");
     var userId = localStorage.getItem("userid");
     var screeningId = 2; // Hard coded for now
+    
     // Function to fetch and display bookings for a specific user
     function fetchSubscribers(screeningId, userId) {
       fetch(`http://127.0.0.1:5003/subscribers/subscriptions/${screeningId}`)
@@ -140,9 +141,16 @@
     }
 
     function checkSubscription(userIdList, userId, screeningId) {
-      if (userIdList.includes(userId)) {
+      console.log(typeof userId); // Log data type of userId
+      console.log(userIdList.map(id => typeof id)); // Log data types of elements in userIdList
+
+      const isSubscribed = userIdList.find(id => id === parseInt(userId));
+      console.log(isSubscribed)
+      // If isSubscribed holds a value, display Unsubscribe button
+      if (isSubscribed) {
         console.log("User is subscribed");
         unsubscribeUser(screeningId);
+      // If isSubscribed is undefined, display Subscribe button
       } else {
         console.log("User is not subscribed");
         subscribeUser(screeningId);
@@ -180,7 +188,7 @@
     function unsubscribeUser(screening_id) {
       // Update the HTML content of the subscribeDisplay div
       document.getElementById("subscribeDisplay").innerHTML = `
-          <form id="subscriptionForm" action="http://127.0.0.1:5003/subscribers/unsubscribe?screening_id=${screening_id}&user_id=${userId}" class="subscribe-form" method="post">
+          <form id="subscriptionForm" action="http://127.0.0.1:5003/subscribers/unsubscribe?screening_id=${screening_id}&user_id=${userId}" class="subscribe-form" method="delete">
             <input type="hidden" name="redirect" value="${window.location.href}"> 
             <button id="subscribe-btn" type="submit" class="btn btn-outline-primary subscribe-btn">Unsubscribe</button>
           </form>
@@ -188,20 +196,32 @@
       // This code prevents redirecting to the specified URL in the form but still executes the route function, instead it redirects
       // user back to the page after the record has been created
       document.getElementById("subscriptionForm").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent form submission
-        var form = this;
-        // Perform form submission
-        fetch(form.action, {
-            method: form.method,
-            body: new FormData(form)
-        })
-        .then(response => {
-            // Redirect user back to this page after form submission
-            window.location.href = window.location.href;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        event.preventDefault(); // Prevent default form submission
+        
+        // Get the form data
+        const formData = new FormData(this);
+    
+        // Extract the action and method attributes from the form
+        const action = this.getAttribute("action");
+        const method = this.getAttribute("method");
+    
+        // Make sure the method is not GET or HEAD before making the fetch request
+        if (method !== "GET" && method !== "HEAD") {
+            // Perform fetch request with form data
+            fetch(action, {
+                method: method,
+                body: formData
+            })
+            .then(response => {
+                // Refresh the page after unsubscribing
+                window.location.href = window.location.href
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        } else {
+            console.error('GET/HEAD method cannot have a body.');
+        }
       });
     }
 
