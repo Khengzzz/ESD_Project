@@ -130,7 +130,7 @@
           </div>
           <div class="notification-bell">
               <button class="btn btn-outline-primary" type="button" id="notificationButton">
-                  <img src="images/notification.png" alt="Notification Bell" width="30" height="30">
+                  <img src="../static/images/notification.png" alt="Notification Bell" width="30" height="30">
               </button>
           </div>
       </div>
@@ -193,7 +193,7 @@
         <!-- Card 1 -->
         <div class="col-3">
           <div class="card">
-            <img src="images/avatar.jpg" class="card-img-top" alt="...">
+            <img src="{{ url_for('static', filename='../static/images/avatar.jpg') }}" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title">Avatar: The Way of Water</h5>
               <p class="card-text">Sci-fi, Action</p>
@@ -203,8 +203,8 @@
         <!-- Card 2 -->
         <div class="col-3">
           <div class="card">
-            <a href="screening.html?screening_id=1">
-            <img src="{{ url_for('static', filename='images/antman.jpg') }}" class="card-img-top" alt="...">
+            <a href="screening/1">
+            <img src="{{ url_for('static', filename='../static/images/antman.jpg') }}" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title">Ant-Man and the Wasp: Quantumania</h5>
               <p class="card-text">Action, Adventure</p>
@@ -215,22 +215,26 @@
         <!-- Card 3 -->
         <div class="col-3">
           <div class="card">
-            <img src="images/everythingeverywhere.jpg" class="card-img-top" alt="...">
+            <a href="screening/2">
+            <img src="{{ url_for('static', filename='../static/images/everythingeverywhere.jpg') }}" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title">Everything Everywhere All At Once</h5>
               <p class="card-text">Sci-fi, Action</p>
             </div>
+          </a>
           </div>
         </div>
         <!-- Card 4 -->
         <div class="col-3">
           <div class="card">
-            <img src="images/elvis.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
+            <a href="screening/2">
+            <img src="{{ url_for('static', filename='../static/images/elvis.jpg') }}" class="card-img-top" alt="...">
               <h5 class="card-title">Elvis</h5>
               <p class="card-text">Musical, Drama</p>
             </div>
+          </a>
           </div>
+        </a>
         </div>
       </div>
     </div>

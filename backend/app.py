@@ -10,9 +10,9 @@ def index():
     
     return render_template('index.html')
 
-@app.route('/screening')
-def screening():
-    return render_template('screening.html')
+@app.route('/screening/<screening_id>')
+def screening(screening_id):
+    return render_template('screening.html',screening_id=screening_id)
 
 @app.route('/mypurchase')
 def mypurchase():
