@@ -61,8 +61,9 @@ def retrieve_charge(charge_id):
         return None
 
 # Route handler to render the payment portal page
-@app.route('/payment/payment_portal')
+@app.route('/payment', methods=["POST"])
 def paymentPage():
+    print("hi")
     information = {
                     "quantity": 3,
                     "booking_id": 25
@@ -70,6 +71,8 @@ def paymentPage():
 
     amount=information['quantity']*1500
     booking_id=information["booking_id"]
+    # return(information)
+    # return redirect(url_for('success', total_amount=amount))
     return render_template('payment.html',total_amount=amount,booking_id=booking_id)
 
 

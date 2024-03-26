@@ -15,11 +15,11 @@
     <div class="screen"></div>
     <div class="row">
       <!-- Row A -->
-      <div class="seat">A1</div>
-      <div class="seat">A2</div>
-      <div class="seat">A3</div>
-      <div class="seat">A4</div>
-      <div class="seat">A5</div>
+      <div class="seat" id="1">A1</div>
+      <div class="seat" id="2">A2</div>
+      <div class="seat" id="3">A3</div>
+      <div class="seat" id="4">A4</div>
+      <div class="seat" id="5">A5</div>
       <div class="seat">A6</div>
       <div class="seat">A7</div>
       <div class="seat">A8</div>
@@ -108,14 +108,27 @@
       <option value="10">Guardians of the Galaxy</option>
     </select>
   </div>
-
+  <div id="abc"> </div>
+  <div id="screeningId">abc</div>
+  <div id="screeningData"></div>
   <p class="text">You have selected <span id="count">0</span> seat for a price of $<span id="total">0</span></p>
 
   <!-- <button class="book-now">Book Now</button> -->
-  <a href="payment.html" class="book-now">Book Now</a>
+  <!-- <a href="payment.html" class="book-now">Book Now</a> -->
+  <form id="paymentForm" action="payment" method="POST">
+    <!-- Your other form fields here -->
+    <input type="hidden" id="totalInput" value=0> <!-- Hidden input field for the total value -->
+    <button type="submit" class="book-now">Book Now</button> <!-- Submit button -->
+  </form>
+  
+
+
   <button id="subscribe-btn" class="subscribe-btn">Subscribe to Notification</button>
 
 
-  <script src="script.js"></script>
+  <script src="script.js">
+  </script>
+
+  
 </body>
 </html>

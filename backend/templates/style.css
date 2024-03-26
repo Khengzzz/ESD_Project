@@ -55,6 +55,7 @@ body {
 
 .seat.sold {
   background-color: darkgreen; /* Changed taken seat color to dark green */
+  pointer-events: none;
 }
 
 .seat.reserved {

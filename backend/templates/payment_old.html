@@ -6,7 +6,11 @@
     <title>Payment Form</title>
 </head>
 <body>
+
     <h1>Payment Form</h1>
+    <p>abcd    {{total_amount}}
+        {{booking_id}}</p>
+
     <form action="/payment/charge" method="post">
         <input type="hidden" name="amount" value={{total_amount}}> <!-- Amount in cents (15 SGD * 100) -->
        

@@ -35,6 +35,7 @@
     </style>
 </head>
 <body>
+   
     <h1 style="padding: 30px;">Payment</h1>
     <div class="container">
         <div class="row">
@@ -43,6 +44,8 @@
             </div>
             <div class="col-8">
                 <h4 style="color: rgb(249, 182, 13);"><strong>Avengers: Infinity War</strong></h4>
+                {{ total_amount }}
+                {{booking_id}}
                 <hr>
                 <p><i class="fas fa-film"></i> <span class="icon-text">Action, Adventure, Sci-fi</span></p>
                 <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Cinema Hall 1</span></p>
@@ -50,7 +53,7 @@
                 <p><strong>Booking ID:</strong> <span class="align-right">FHE9894230</span></p>
                 <p><strong>Seat:</strong> <span class="align-right">1, 2, 3, 4</span></p>
                 <hr>
-                <h4><strong>Total:</strong><span class="align-right" style="color: rgb(249, 182, 13);"><strong>$20.00</strong></span></h4>
+                <h4><strong>Total:</strong><span class="align-right" style="color: rgb(249, 182, 13);"><strong>${{ total_amount }}, {{}}</strong></span></h4>
             </div>
         </div>
         <div class="row">
@@ -58,7 +61,7 @@
                 <h4 style="text-align: left;">Select Payment Method:</h4>
             </div>
             <div class="col text-end"> <!-- added style display inline for both forms and changes to bootstrap button class -->
-                <form action="/payment/charge" method="post" style="display:inline">
+                <form action="payment/charge" method="post" style="display:inline">
                     <input type="hidden" name="amount" value="{{total_amount}}"> <!-- Amount in cents (15 SGD * 100) -->
                     <input type="hidden" name="currency" value="sgd"> <!-- Currency is SGD -->
                     <input type="hidden" name="booking_id" value="{{booking_id}}">
@@ -85,3 +88,6 @@
     
 </body>
 </html>
+<script>
+    
+</script>

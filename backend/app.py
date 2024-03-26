@@ -1,12 +1,13 @@
 from flask_cors import CORS
-from flask import Flask, render_template
+from flask import Flask, render_template,url_for
 
 app = Flask(__name__)
 CORS(app)
 
-
+app.static_folder = 'static' 
 @app.route('/')
 def index():
+    
     return render_template('index.html')
 
 @app.route('/screening')
