@@ -60,6 +60,7 @@ body {
 
 .seat.reserved {
   background-color: red; /* Changed reserved seat color to red */
+  pointer-events: none;
 }
 
 .seat:not(.sold):hover {

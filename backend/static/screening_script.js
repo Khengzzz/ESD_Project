@@ -138,6 +138,9 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.classList.toggle("selected");
             updateSelectedCount();
         }
+        if (e.target.classList.contains("book-now")){
+            userClicksPayment();
+        }
     });
 
     // Initial count and total set
@@ -148,4 +151,12 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem("selectedMovieIndex", movieIndex);
         localStorage.setItem("selectedMoviePrice", moviePrice);
     }
+
+    //call usr id, when user pressbutton it will call booking orchestrator, if successful redirect user to payment page
+    function userClicksPayment(){
+        userid=localStorage.getItem("userid")
+        
+    }
+    
+
 });
