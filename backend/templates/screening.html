@@ -113,6 +113,7 @@
 
   <!-- <button class="book-now">Book Now</button> -->
   <a href="payment.html" class="book-now">Book Now</a>
+
   <div id="subscribeDisplay">
   </div>
 
@@ -122,7 +123,7 @@
     var userId = localStorage.getItem("userid");
     var screeningId = 2; // Hard coded for now
     
-    // Function to fetch and display bookings for a specific user
+    // Function to fetch and subscribers for a specific screening
     function fetchSubscribers(screeningId, userId) {
       fetch(`http://127.0.0.1:5003/subscribers/subscriptions/${screeningId}`)
       .then(response => response.json())
@@ -140,6 +141,7 @@
       .catch(error => console.error('Error fetching subscribers:', error));
     }
 
+    // Function to check if current user is already subscribed
     function checkSubscription(userIdList, userId, screeningId) {
       console.log(typeof userId); // Log data type of userId
       console.log(userIdList.map(id => typeof id)); // Log data types of elements in userIdList
@@ -157,6 +159,7 @@
       }
     }
 
+    // Function to display the button as 'Subscribe' and allow the user to subscribe
     function subscribeUser(screening_id) {
         // Update the HTML content of the subscribeDisplay div
         document.getElementById("subscribeDisplay").innerHTML = `
@@ -176,7 +179,7 @@
               body: new FormData(form)
           })
           .then(response => {
-              // Redirect user back to this page after form submission
+              // Redirect user back to this page after subscribing
               window.location.href = window.location.href;
           })
           .catch(error => {
@@ -185,6 +188,7 @@
         });
     }
 
+    // Function to display the button as 'Unsubscribe' and allow the user to unsubscribe
     function unsubscribeUser(screening_id) {
       // Update the HTML content of the subscribeDisplay div
       document.getElementById("subscribeDisplay").innerHTML = `
@@ -213,7 +217,7 @@
                 body: formData
             })
             .then(response => {
-                // Refresh the page after unsubscribing
+                // Redirect user back to this page after unsubscribing
                 window.location.href = window.location.href
             })
             .catch(error => {
@@ -225,8 +229,9 @@
       });
     }
 
-    // Call fetchBookings function with user ID when the page loads
+    // Run fetchSubscribers function when the page loads
     window.onload = function() {
+      // Replace this with the main function used to decide whether Subscribe or BookNow should be called
       fetchSubscribers(screeningId, userId)
     };
 
