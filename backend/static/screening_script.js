@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dbSeats=data.data.seats;// Log the data to console (for testing)
                 const screeningDataElement = document.getElementById('screeningData');
                 screeningDataElement.innerText=data.data.seats;
-                updateUI(dbSeats)
+                updateUI(seats,dbSeats)
                 return data.data.seats;
             })
             .catch(error => {
@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (seat.seat_status === "booked") {
                 seatTaken.push(seat.seat_id);
                 const seatElement = document.getElementById(seat.seat_id);
+                console.log(seatElement)    
                 if (seatElement) {
                     seatElement.classList.add("sold"); 
                 }
@@ -111,11 +112,11 @@ document.addEventListener('DOMContentLoaded', function() {
         setMovieData(movieSelect.selectedIndex, movieSelect.value);
     }
 
-    const screeningIdElement = document.getElementById('screeningId').innerText;
+    
    
 
     // Call fetchScreeningData to fetch screening data
-    
+    const screeningIdElement = document.getElementById('screeningId').innerText;
     fetchScreeningData(screeningIdElement)
     console.log(dbSeats)
     //  console.log(occupiedSeats)
