@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const movieSelect = document.getElementById("movie");
     const seatTaken = [];
     var dbSeats;
+    var ticketSelected=[]
 
 
 
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Call the function to style booked seats
     styleBookedSeats();
 
-    let ticketPrice = +movieSelect.value;
+   
     // Function to populate UI from local storage
     function populateUI() {
         const selectedSeats = JSON.parse(localStorage.getItem("selectedSeats"));
@@ -88,28 +89,28 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        const selectedMovieIndex = localStorage.getItem("selectedMovieIndex");
+        // const selectedMovieIndex = localStorage.getItem("selectedMovieIndex");
 
-        if (selectedMovieIndex !== null) {
-            movieSelect.selectedIndex = selectedMovieIndex;
-            console.log(selectedMovieIndex);
-        }
+        // if (selectedMovieIndex !== null) {
+        //     movieSelect.selectedIndex = selectedMovieIndex;
+        //     console.log(selectedMovieIndex);
+        // }
     }
 
     // Function to update selected count
     function updateSelectedCount() {
         const selectedSeats = document.querySelectorAll(".row .seat.selected");
-        console.log("h3")
-        const seatsIndex = [...selectedSeats].map((seat) => [...seats].indexOf(seat));
+        console.log()
+        const seatsIndex = [...selectedSeats].map((seat) => [...seats].indexOf(seat)+1);
 
         localStorage.setItem("selectedSeats", JSON.stringify(seatsIndex));
 
         const selectedSeatsCount = selectedSeats.length;
-
+        ticketPrice=15;
         count.innerText = selectedSeatsCount;
         total.innerText = selectedSeatsCount * ticketPrice;
-
-        setMovieData(movieSelect.selectedIndex, movieSelect.value);
+        selectedSeats.push(seatsIndex)
+        // setMovieData(movieSelect.selectedIndex, movieSelect.value);
     }
 
     
@@ -125,12 +126,12 @@ document.addEventListener('DOMContentLoaded', function() {
     //     };
 
     // Event listener for movie select change
-    movieSelect.addEventListener("change", (e) => {
-        console.log("h4")
-        ticketPrice = +e.target.value;
-        setMovieData(e.target.selectedIndex, e.target.value);
-        updateSelectedCount();
-    });
+    // movieSelect.addEventListener("change", (e) => {
+    //     let ticketPrice = +movieSelect.value;
+    //     ticketPrice = +e.target.value;
+    //     setMovieData(e.target.selectedIndex, e.target.value);
+    //     updateSelectedCount();
+    // });
 
     // Event listener for seat click
     container.addEventListener("click", (e) => {
@@ -138,25 +139,29 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.classList.toggle("selected");
             updateSelectedCount();
         }
-        if (e.target.classList.contains("book-now")){
-            userClicksPayment();
-        }
-    });
+        
+    }); 
+    const paymentButton=document.getElementById("book-now");
+        
 
     // Initial count and total set
     updateSelectedCount();
 
     // Save selected movie index and price
-    function setMovieData(movieIndex, moviePrice) {
-        localStorage.setItem("selectedMovieIndex", movieIndex);
-        localStorage.setItem("selectedMoviePrice", moviePrice);
-    }
+    // function setMovieData(movieIndex, moviePrice) {
+    //     // localStorage.setItem("selectedMovieIndex", movieIndex);
+    //     localStorage.setItem("selectedMoviePrice", moviePrice);
+    // }
 
     //call usr id, when user pressbutton it will call booking orchestrator, if successful redirect user to payment page
-    function userClicksPayment(){
-        userid=localStorage.getItem("userid")
+    // function userClicksPayment(){
+    //     userid=localStorage.getItem("userid")
+    //     cost= selectedSeatsCount * ticketPrice;
+    //     //call booking orchestrator
+    //     console.log(userid)
+    //     console.log("button pressed " +cost)
+
         
-    }
-    
+    // }
 
 });
