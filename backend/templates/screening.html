@@ -127,10 +127,135 @@
 
   <button id="subscribe-btn" class="subscribe-btn">Subscribe to Notification</button>
 
+  <div id="subscribeDisplay">
+  </div>
 
   <script src="../static/screening_script.js">
   </script>
 
 
+  <script src="script.js"></script>
+  <script>
+    // General
+    // 
+
+    var email = localStorage.getItem("email");
+    var userId = localStorage.getItem("userid");
+    var screeningId = 2; // Hard coded for now to be changed when integrating
+    
+    // Subscribe Methods
+    // Function to fetch and subscribers for a specific screening
+    function fetchSubscribers(screeningId, userId) {
+      fetch(`http://127.0.0.1:5003/subscribers/subscriptions/${screeningId}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        if (data.code === 200) {
+          const userIdList = data.data.subscribers.map(subscriber => subscriber.user_id);
+          console.log(userIdList);
+          console.log(userId);
+          checkSubscription(userIdList, userId, screeningId);
+        } else {
+          subscribeUser(screeningId)
+        }
+      })
+      .catch(error => console.error('Error fetching subscribers:', error));
+    }
+
+    // Function to check if current user is already subscribed
+    function checkSubscription(userIdList, userId, screeningId) {
+      console.log(typeof userId); // Log data type of userId
+      console.log(userIdList.map(id => typeof id)); // Log data types of elements in userIdList
+
+      const isSubscribed = userIdList.find(id => id === parseInt(userId));
+      console.log(isSubscribed)
+      // If isSubscribed holds a value, display Unsubscribe button
+      if (isSubscribed) {
+        console.log("User is subscribed");
+        unsubscribeUser(screeningId);
+      // If isSubscribed is undefined, display Subscribe button
+      } else {
+        console.log("User is not subscribed");
+        subscribeUser(screeningId);
+      }
+    }
+
+    // Function to display the button as 'Subscribe' and allow the user to subscribe
+    function subscribeUser(screening_id) {
+        // Update the HTML content of the subscribeDisplay div
+        document.getElementById("subscribeDisplay").innerHTML = `
+            <form id="subscriptionForm" action="http://127.0.0.1:5003/subscribers/subscribe?screening_id=${screening_id}&user_id=${userId}&email=${email}" class="subscribe-form" method="post">
+              <input type="hidden" name="redirect" value="${window.location.href}"> 
+              <button id="subscribe-btn" type="submit" class="btn btn-outline-primary subscribe-btn">Subscribe</button>
+            </form>
+        `;
+        // This code prevents redirecting to the specified URL in the form but still executes the route function, instead it redirects
+        // user back to the page after the record has been created
+        document.getElementById("subscriptionForm").addEventListener("submit", function(event) {
+          event.preventDefault(); // Prevent form submission
+          var form = this;
+          // Perform form submission
+          fetch(form.action, {
+              method: form.method,
+              body: new FormData(form)
+          })
+          .then(response => {
+              // Redirect user back to this page after subscribing
+              window.location.href = window.location.href;
+          })
+          .catch(error => {
+              console.error('Error:', error);
+          });
+        });
+    }
+
+    // Function to display the button as 'Unsubscribe' and allow the user to unsubscribe
+    function unsubscribeUser(screening_id) {
+      // Update the HTML content of the subscribeDisplay div
+      document.getElementById("subscribeDisplay").innerHTML = `
+          <form id="subscriptionForm" action="http://127.0.0.1:5003/subscribers/unsubscribe?screening_id=${screening_id}&user_id=${userId}" class="subscribe-form" method="delete">
+            <input type="hidden" name="redirect" value="${window.location.href}"> 
+            <button id="subscribe-btn" type="submit" class="btn btn-outline-primary subscribe-btn">Unsubscribe</button>
+          </form>
+      `;
+      // This code prevents redirecting to the specified URL in the form but still executes the route function, instead it redirects
+      // user back to the page after the record has been created
+      document.getElementById("subscriptionForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        // Get the form data
+        const formData = new FormData(this);
+    
+        // Extract the action and method attributes from the form
+        const action = this.getAttribute("action");
+        const method = this.getAttribute("method");
+    
+        // Make sure the method is not GET or HEAD before making the fetch request
+        if (method !== "GET" && method !== "HEAD") {
+            // Perform fetch request with form data
+            fetch(action, {
+                method: method,
+                body: formData
+            })
+            .then(response => {
+                // Redirect user back to this page after unsubscribing
+                window.location.href = window.location.href
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        } else {
+            console.error('GET/HEAD method cannot have a body.');
+        }
+      });
+    }
+
+    // Run fetchSubscribers function when the page loads
+    window.onload = function() {
+      // Replace this with the main function used to decide whether Subscribe or BookNow should be called
+      fetchSubscribers(screeningId, userId)
+    };
+
+  </script>
 </body>
 </html>

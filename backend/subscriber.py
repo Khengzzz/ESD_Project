@@ -7,6 +7,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/subscriber'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+CORS(app)
 
 db = SQLAlchemy(app)
 
@@ -17,27 +18,24 @@ class Subscriber(db.Model):
     screening_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, primary_key=True)
     user_email = db.Column(db.String(255), nullable=False)
-    creation_timestamp = db.Column(db.TIMESTAMP, default=datetime.utcnow)
 
 
-    def __init__(self, screening_id, user_id, user_email, creation_timestamp):
+    def __init__(self, screening_id, user_id, user_email):
         self.screening_id = screening_id
         self.user_id = user_id
         self.user_email = user_email
-        self.creation_timestamp = creation_timestamp
 
 
     def json(self):
         return {
             "screening_id": self.screening_id, 
             "user_id": self.user_id,
-            "user_email": self.user_email, 
-            "creation_timestamp": self.creation_timestamp.isoformat()
+            "user_email": self.user_email
         }
 
 
 # Route handler to retrieve all subscribers for a specific screening based on 'screening_id'
-@app.route("/subscribers/subscriptions/<string:screening_id>")
+@app.route("/subscribers/subscriptions/<int:screening_id>")
 def get_subscribers_by_screening(screening_id):
     subscriber_list = Subscriber.query.filter_by(screening_id=screening_id).all()
 
@@ -60,6 +58,7 @@ def get_subscribers_by_screening(screening_id):
 def subscribe_user():
     screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")
+    user_email = request.args.get("email")
     if (db.session.scalars(
         db.select(Subscriber).filter_by(screening_id=screening_id, user_id=user_id).
         limit(1)
@@ -76,10 +75,7 @@ def subscribe_user():
             }
         ), 400
 
-
-    data = request.get_json()
-    user_subscription = Subscriber(screening_id, user_id, **data)
-
+    user_subscription = Subscriber(screening_id, user_id, user_email)
 
     try:
         db.session.add(user_subscription)
@@ -110,7 +106,7 @@ def subscribe_user():
 def unsubscribe_user():
     screening_id = request.args.get("screening_id")
     user_id = request.args.get("user_id")
-
+    
     existing_subscription = db.session.scalars(
         db.select(Subscriber).filter_by(screening_id=screening_id, user_id=user_id).limit(1)
     ).first()
