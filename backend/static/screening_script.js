@@ -5,16 +5,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const total = document.getElementById("total");
     const movieSelect = document.getElementById("movie");
     const seatTaken = [];
+    var dbSeats;
 
 
 
 
     // Function to fetch screening data from the server
     function fetchScreeningData(screeningId) {
-        return fetch(`http://127.0.0.1:5000/screenings/seats/${screeningId}`)
+        fetch(`http://localhost:5000/screenings/seats/${screeningId}`)
             .then(response => response.json())
             .then(data => {
-                console.log(data.data); // Log the data to console (for testing)
+                console.log("hi")
+                console.log(data.data.seats); 
+                dbSeats=data.data.seats;// Log the data to console (for testing)
+                const screeningDataElement = document.getElementById('screeningData');
+                screeningDataElement.innerText=data.data.seats;
+                updateUI(dbSeats)
                 return data.data.seats;
             })
             .catch(error => {
@@ -22,19 +28,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 return []; // Return an empty array in case of error
             });
     }
-
+    
     // Function to update UI based on fetched data
-    function updateUI(seats) {
-        const screeningDataElement = document.getElementById('screeningData');
+    function updateUI(seats,dbSeats) {
+        console.log("this is update ui")
 
-        seats.forEach(seat => {
+       dbSeats.forEach(seat => {
 
             //if booked
             if (seat.seat_status === "booked") {
                 seatTaken.push(seat.seat_id);
                 const seatElement = document.getElementById(seat.seat_id);
                 if (seatElement) {
-                    seatTaken.push(seat.seat.id)
                     seatElement.classList.add("sold"); 
                 }
             }
@@ -47,9 +52,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             document.getElementById("taken").textContent=seatTaken
+            
         });
 
         // Call other functions that depend on the fetched data
+        console.log("hi2")
         populateUI();
         updateSelectedCount();
     }
@@ -61,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 seatElement.classList.add("sold"); // Add the .booked class
             }
         });
+       
     }
 
     // Call the function to style booked seats
@@ -90,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to update selected count
     function updateSelectedCount() {
         const selectedSeats = document.querySelectorAll(".row .seat.selected");
-
+        console.log("h3")
         const seatsIndex = [...selectedSeats].map((seat) => [...seats].indexOf(seat));
 
         localStorage.setItem("selectedSeats", JSON.stringify(seatsIndex));
@@ -103,17 +111,21 @@ document.addEventListener('DOMContentLoaded', function() {
         setMovieData(movieSelect.selectedIndex, movieSelect.value);
     }
 
-    const screeningIdElement = document.getElementById('screeningId');
-
+    const screeningIdElement = document.getElementById('screeningId').innerText;
+   
 
     // Call fetchScreeningData to fetch screening data
-    fetchScreeningData(screeningId)
-        .then(seats => {
-            updateUI(seats); // Update UI with fetched data
-        });
+    
+    fetchScreeningData(screeningIdElement)
+    console.log(dbSeats)
+    //  console.log(occupiedSeats)
+    //     seats => {
+    //         updateUI(seats); // Update UI with fetched data
+    //     };
 
     // Event listener for movie select change
     movieSelect.addEventListener("change", (e) => {
+        console.log("h4")
         ticketPrice = +e.target.value;
         setMovieData(e.target.selectedIndex, e.target.value);
         updateSelectedCount();

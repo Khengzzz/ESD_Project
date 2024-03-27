@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to fetch screening data from the server
     function fetchScreeningData(screeningId) {
-        return fetch(`http://127.0.0.1:5000/screenings/seats/${screeningId}`)
+        console.log(screeningId)
+        fetch(`http://127.0.0.1:5000/screenings/seats/1`)
             .then(response => response.json())
             .then(data => {
                 console.log(data.data); // Log the data to console (for testing)
@@ -103,9 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const screeningId = getQueryParam('screening_id');
 
     // Display the screening ID on the page
-    const screeningIdElement = document.getElementById('screeningId');
-    screeningIdElement.innerText = 'Screening ID: ' + screeningId;
-
+    console.log(screeningId)
     // Call fetchScreeningData to fetch screening data
     fetchScreeningData(screeningId)
         .then(seats => {
