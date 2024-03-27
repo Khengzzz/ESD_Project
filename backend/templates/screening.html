@@ -119,10 +119,14 @@
 
   <script src="script.js"></script>
   <script>
+    // General
+    // 
+
     var email = localStorage.getItem("email");
     var userId = localStorage.getItem("userid");
-    var screeningId = 2; // Hard coded for now
+    var screeningId = 2; // Hard coded for now to be changed when integrating
     
+    // Subscribe Methods
     // Function to fetch and subscribers for a specific screening
     function fetchSubscribers(screeningId, userId) {
       fetch(`http://127.0.0.1:5003/subscribers/subscriptions/${screeningId}`)
