@@ -7,6 +7,66 @@
   <link rel="stylesheet" href="../static/style.css" />
   <title>Select Seat - Movie Seat Booking</title>
 </head>
+<script>
+  function userClicksPayment(){
+    userId=parseInt(localStorage.getItem("userid"))
+    console.log(userId)
+    email=localStorage.getItem("email")
+    console.log(email)
+    selectedSeatsString=localStorage.getItem("selectedSeats")
+    const selectedSeatsArray = JSON.parse(selectedSeatsString);
+    console.log(selectedSeatsArray)
+    screening_id_text=document.getElementById("screeningId").innerText
+    const screening_id = parseInt(screening_id_text);
+    let jsonData = JSON.stringify({
+        "user_id": userId,
+        "screening_id": screening_id,
+        "seat_ids": selectedSeatsArray
+    });
+    
+
+    fetch(`http://localhost:5100/create_booking`,
+        {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: jsonData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            result = data.data;
+            bookingId = data.data
+
+        })
+        //send to payment page
+        .then(
+          
+    //       fetch(`http://localhost:5101/payment`,
+    //     {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-type": "application/json"
+    //         },
+    //         body:   JSON.stringify({
+    //       "user_id": 2,
+    //       "screening_id": 1,
+    //       "seat_ids": [4]
+    // })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log(data);
+    //         result = data.data;
+    //     })
+
+        )
+
+  }
+
+</script>
+
 <body>
   <h1>Select Seat</h1>
 
@@ -92,36 +152,20 @@
       <li><div class="seat reserved"></div><small>Reserved</small></li>
     </ul>
 
-    <div class="datetime-container">
-      <label>Select date:</label>
-      <input type="date" id="date">
-      <label>Select time:</label>
-      <input type="time" id="time">
-    </div>
-  </div>
-
-  <div class="movie-container">
-    <label>Select a movie:</label>
-    <select id="movie">
-      <option value="10">Avengers - Infinity War</option>
-      <option value="10">Batman V Superman</option>
-      <option value="10">Guardians of the Galaxy</option>
-    </select>
-  </div>
+ 
   <div id="taken">hi </div>
   <div id="screeningId">{{screening_id}}</div>
   <div id="screeningData"></div>
   <p class="text">You have selected <span id="count">0</span> seat for a price of $<span id="total">0</span></p>
 
-  <button class="book-now">Book Now</button> -->
+  
   <!-- <a href="payment.html" class="book-now">Book Now</a>
-  <!-- change to event listener, when user clicks calls booking orchestrator, get user Id from cache
- -->
-  <form id="paymentForm" action="payment" method="POST">
+  change to event listener, when user clicks calls booking orchestrator, get user Id from cache-->
+
     <!-- Your other form fields here -->
-    <input type="hidden" id="totalInput" value=0> <!-- Hidden input field for the total value -->
-    <button type="submit" class="book-now">Book Now</button> <!-- Submit button -->
-  </form>
+    <!-- <input type="hidden" id="totalInput" value=0> Hidden input field for the total value -->
+    <button type="button" onclick="userClicksPayment()" id="book-now">Book Now</button> <!-- Submit button -->
+
   
 
 
@@ -134,8 +178,12 @@
   </script>
 
 
-  <script src="script.js"></script>
   <script>
+
+
+
+
+
     // General
     // 
 

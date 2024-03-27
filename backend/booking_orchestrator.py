@@ -19,8 +19,8 @@ def receiveBooking():
 
             # 1. Send booking details from UI to booking orchestrator 
             result = processBooking(booking_details) #link to process booking fn/route
+            print(jsonify(result))
             
-            if result
             return jsonify(result), result["code"]
 
         except Exception as e:

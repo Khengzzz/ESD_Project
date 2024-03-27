@@ -54,12 +54,13 @@ body {
 }
 
 .seat.sold {
-  background-color: darkgreen; /* Changed taken seat color to dark green */
+  background-color: lightblue; /* Changed taken seat color to dark green */
   pointer-events: none;
 }
 
 .seat.reserved {
-  background-color: red; /* Changed reserved seat color to red */
+  background-color: red;
+  pointer-events: none; /* Changed reserved seat color to red */
 }
 
 .seat:not(.sold):hover {

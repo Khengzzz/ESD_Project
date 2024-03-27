@@ -20,5 +20,8 @@ def screening(screening_id):
 def mypurchase():
     return render_template('my_purchase.html')
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=1234, debug=False)
