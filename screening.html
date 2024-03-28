@@ -70,6 +70,7 @@
   <h1>Select Seat</h1>
 
   <div class="container">
+    <div id="subscribeDisplay"></div>
     <div class="col-auto">
       <a href="http://localhost:8000/"><button class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</button></a>
     </div>
@@ -154,23 +155,12 @@
       <li><div class="seat reserved"></div><small>Reserved</small></li>
     </ul>
 
- 
-  <div id="taken">hi </div>
-  <div id="screeningId">{{screening_id}}</div>
-  <div id="screeningData"></div>
+
+  <div id="screeningId" style="color: black;">{{screening_id}}</div>
   <p class="text">You have selected <span id="count">0</span> seat for a price of $<span id="total">0</span></p>
 
   
-  <!-- <a href="payment.html" class="book-now">Book Now</a>
-  change to event listener, when user clicks calls booking orchestrator, get user Id from cache-->
-
-    <!-- Your other form fields here -->
-    <!-- <input type="hidden" id="totalInput" value=0> Hidden input field for the total value -->
     <button type="button" onclick="userClicksPayment()" id="book-now">Book Now</button> <!-- Submit button -->
-
-
-  <div id="subscribeDisplay">
-  </div>
 
   <script src="../static/screening_script.js">
   </script>
@@ -235,7 +225,7 @@
         document.getElementById("subscribeDisplay").innerHTML = `
             <form id="subscriptionForm" action="http://localhost:8000/subscribers/subscribe?screening_id=${screening_id}&user_id=${userId}&email=${email}" class="subscribe-form" method="post">
               <input type="hidden" name="redirect" value="${window.location.href}"> 
-              <button id="subscribe-btn" type="submit" class="btn btn-outline-primary subscribe-btn">Subscribe</button>
+              <button id="subscribe-btn" type="submit" class="btn btn-warning subscribe-btn">Subscribe to Notification</button>
             </form>
         `;
         // This code prevents redirecting to the specified URL in the form but still executes the route function, instead it redirects
@@ -264,7 +254,7 @@
       document.getElementById("subscribeDisplay").innerHTML = `
           <form id="subscriptionForm" action="http://localhost:8000/subscribers/unsubscribe?screening_id=${screening_id}&user_id=${userId}" class="subscribe-form" method="delete">
             <input type="hidden" name="redirect" value="${window.location.href}"> 
-            <button id="subscribe-btn" type="submit" class="btn btn-outline-primary subscribe-btn">Unsubscribe</button>
+            <button id="subscribe-btn" type="submit" class="btn btn-outline-primary subscribe-btn">Unsubscribe to Notification</button>
           </form>
       `;
       // This code prevents redirecting to the specified URL in the form but still executes the route function, instead it redirects
@@ -306,5 +296,6 @@
     };
 
   </script>
+  
 </body>
 </html>
