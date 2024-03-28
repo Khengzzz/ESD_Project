@@ -24,7 +24,7 @@ if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
 
 # Link to db
 app = Flask(__name__)
-stripe.api_key = "sk_test_51OrGR4EaG7MlgHzNxoK8QmcdiOylptZTRcHBzmdyGpBSccw1suzZraVKcjFuQbH23ztdaABzUJIBn4w5EzRV9V8400rakKh75Q"
+stripe.api_key = "sk_test_51OoQM4Db6e0xe0n3x00YdJ2FapLr7NZ9XTms5vOb6z64T38InsHjHOjaguKcESoNPCZZ0R225k4PU08aRQFteyA200kQwXA8r3"
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/transactions'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 metrics = PrometheusMetrics(app)
@@ -63,16 +63,17 @@ def retrieve_charge(charge_id):
         return None
 
 # Route handler to render the payment portal page
-@app.route('/payment/payment_portal')
+@app.route('/payment')
 def paymentPage():
-    information = {
-                    "quantity": 3,
-                    "booking_id": 31
-                    }
-
-    amount=information['quantity']*1500
-    booking_id=information["booking_id"]
-    return render_template('payment.html',total_amount=amount,booking_id=booking_id)
+    # print("hi")
+    booking_id = int(request.args.get('booking_id'))
+    quantity = int(request.args.get('quantity'))
+   
+    total_amount=quantity*1500
+    displayed_amt=round(total_amount / 100, 2)
+    # return(information)
+    # return redirect(url_for('success', total_amount=amount))
+    return render_template('payment.html',total_amount=total_amount, booking_id=booking_id,displayed_amt=displayed_amt)
 
 
 # Route handler to handle payment processing, creates a charge object after payment complete, update seat and booking status, 

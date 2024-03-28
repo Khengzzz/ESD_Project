@@ -59,8 +59,8 @@ body {
 }
 
 .seat.reserved {
-  background-color: red; /* Changed reserved seat color to red */
-  pointer-events: none;
+  background-color: red;
+  pointer-events: none; /* Changed reserved seat color to red */
 }
 
 .seat:not(.sold):hover {

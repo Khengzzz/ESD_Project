@@ -128,6 +128,11 @@
             <p class="first-paragraph">Hi, User 1<span> &#128075;</span></p>
             <p><span style="font-weight: bold; font-size: 1.5em;">Welcome back</span></p>
           </div>
+          <div class="notification-bell">
+              <button class="btn btn-outline-primary" type="button" id="notificationButton">
+                  <img src="../static/images/notification.png" alt="Notification Bell" width="30" height="30">
+              </button>
+          </div>
       </div>
       
       <div class="search-bar-container">
@@ -144,7 +149,7 @@
     <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
         <div class="carousel-item active">
-          <img src="images/avengers.jpg" class="d-block w-100" alt="...">
+          <img src="{{ url_for('static', filename='images/avengers.jpg') }}" class="d-block w-100" alt="...">
           <div class="movie-details">
             <p class="movie-title">Avengers - Infinity War</p>
             <p>2h29m . Action, Adventure, Sci-fi</p>
@@ -188,7 +193,7 @@
         <!-- Card 1 -->
         <div class="col-3">
           <div class="card">
-            <img src="images/avatar.jpg" class="card-img-top" alt="...">
+            <img src="{{ url_for('static', filename='../static/images/avatar.jpg') }}" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title">Avatar: The Way of Water</h5>
               <p class="card-text">Sci-fi, Action</p>
@@ -199,40 +204,50 @@
         <!-- Card 2 -->
         <div class="col-3">
           <div class="card">
-            <img src="images/antman.jpg" class="card-img-top" alt="...">
+            <a href="screening/1">
+            <img src="{{ url_for('static', filename='../static/images/antman.jpg') }}" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title">Ant-Man and the Wasp: Quantumania</h5>
               <p class="card-text">Action, Adventure</p>
               <p class="card-text">2024-05-04 20:00:00</p>
             </div>
+          </a>
           </div>
         </div>
         <!-- Card 3 -->
         <div class="col-3">
           <div class="card">
-            <img src="images/everythingeverywhere.jpg" class="card-img-top" alt="...">
+            <a href="screening/2">
+            <img src="{{ url_for('static', filename='../static/images/everythingeverywhere.jpg') }}" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title">Everything Everywhere All At Once</h5>
               <p class="card-text">Sci-fi, Action</p>
               <p class="card-text">2024-05-05 14:00:00</p>
             </div>
+          </a>
           </div>
         </div>
         <!-- Card 4 -->
         <div class="col-3">
           <div class="card">
-            <img src="images/elvis.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
+            <a href="screening/2">
+            <img src="{{ url_for('static', filename='../static/images/elvis.jpg') }}" class="card-img-top" alt="...">
               <h5 class="card-title">Elvis</h5>
               <p class="card-text">Musical, Drama</p>
               <p class="card-text">2024-05-06 20:00:00</p>
             </div>
+          </a>
           </div>
+        </a>
         </div>
       </div>
     </div>
-  </main>
 
+    
+
+
+  </main>
+  <div>click here</div>
   <!-- Bottom Navbar -->
   <nav class="bottom-navbar">
     <a href="#">
@@ -258,7 +273,11 @@
 
   <!-- JavaScript -->
   <script>
-
+    
+    document.getElementById("notificationButton").addEventListener("click", function() {
+      // Code to display notifications
+      alert("Notifications clicked!");
+    });
   </script>
 </body>
 </html>
