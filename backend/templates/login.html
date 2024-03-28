@@ -168,10 +168,10 @@ button{
                     // khsiew.2022@smu.edu.sg user 1, another email user 2
                     if (email == "khsiew.2022@smu.edu.sg") {
                         localStorage.setItem("userid", 1)
-                        
-                    }
-                    else {
+                    }else if(email == "linyubinx@gmail.com"){
                         localStorage.setItem("userid", 2)
+                    }else {
+                        localStorage.setItem("userid", 3)
                     }
                     
                     // Redirect to homepage
