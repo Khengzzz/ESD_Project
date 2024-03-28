@@ -43,8 +43,8 @@ def receiveBooking():
 
 # Function to process the booking using booking_details received from receiveBooking
 def processBooking(booking_details):
-    screening_URL_reserve = environ.get('screening_URL_reserve') or "http://localhost:8000/screenings/manage_seats/{screening_id}/reserve"
-    booking_URL_create = environ.get('booking_URL_create') or "http://localhost:8000/bookings"
+    screening_URL_reserve = environ.get('screening_URL_reserve') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/reserve"
+    booking_URL_create = environ.get('booking_URL_create') or "http://127.0.0.1:5001/bookings"
     try:
 
         # 2. Interact with screening.py to update seat status to reserve - orchestrator runs but reserve status in db is not updated

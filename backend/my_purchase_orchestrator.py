@@ -14,7 +14,7 @@ metrics = PrometheusMetrics(app)
 @app.route("/purchase/<user_id>", methods=['GET'])
 def retrieve_purchase(user_id):
 
-    user_booking_URL = environ.get('user_booking_URL') or "http://localhost:8000/bookings/user/{user_id}"
+    user_booking_URL = environ.get('user_booking_URL') or "http://127.0.0.1:5001/bookings/user/{user_id}"
     try:
         # Retrieving all the bookings from a user 
         print('\n-----Invoking booking microservice-----')
@@ -26,7 +26,7 @@ def retrieve_purchase(user_id):
 
         # Going through each booking to retrieve the screening details
         for screening in bookings["data"]:
-            screening_details_URL = environ.get('screening_details_URL') or "http://localhost:8000/screenings/{screening_id}"
+            screening_details_URL = environ.get('screening_details_URL') or "http://127.0.0.1:5000/screenings/{screening_id}"
             screening_details_URL = screening_details_URL.format(screening_id=screening["screening_id"])
             details = invoke_http(screening_details_URL,method="GET")
 

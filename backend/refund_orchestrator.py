@@ -16,7 +16,7 @@ from prometheus_flask_exporter import PrometheusMetrics
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/transactions'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-stripe.api_key = "sk_test_51OoQM4Db6e0xe0n3x00YdJ2FapLr7NZ9XTms5vOb6z64T38InsHjHOjaguKcESoNPCZZ0R225k4PU08aRQFteyA200kQwXA8r3"
+stripe.api_key = "sk_test_51OrGR4EaG7MlgHzNxoK8QmcdiOylptZTRcHBzmdyGpBSccw1suzZraVKcjFuQbH23ztdaABzUJIBn4w5EzRV9V8400rakKh75Q"
 
 metrics = PrometheusMetrics(app)
 
@@ -59,16 +59,16 @@ if not amqp_connection.check_exchange(channel, exchangename, exchangetype):
 # attempts to refund the charge using Stripe API and initiates the refund process
 @app.route("/refund/<booking_id>", methods=['POST'])
 def processRefund(booking_id):
+    print(booking_id)
     transaction = Transactions.query.filter_by(booking_id=booking_id).first()
-    print("Transaction iss", transaction)
     refund = refund_charge(transaction.transaction_id)
-    print("Refund iss", refund)
+
     if refund:
         transaction.transaction_status = 'refunded'
         db.session.commit()
 
         result = initiateRefund(booking_id, refund)
-        return render_template('refund_success.html')
+        return render_template('my_purchase.html', result)
 
     return jsonify({"error": "Failed to process refund"})
 
@@ -76,11 +76,11 @@ def processRefund(booking_id):
 # Function to initiate refund process, updates transaction status in the db, seat_status to 'Available',
 # booking_status to 'Refunded', and notifies subscribers
 def initiateRefund(booking_id, refund_details):
-    seat_URL = environ.get('seat_URL') or "http://localhost:8000/screenings/seats/{screening_id}"
-    refund_seat_URL = environ.get('refund_seat_URL') or "http://localhost:8000/screenings/manage_seats/{screening_id}/refund"
-    booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://localhost:8000/bookings/{booking_id}"
-    booking_URL_refund = environ.get('booking_URL_refund') or "http://localhost:8000/bookings/{booking_id}/refund"
-    subscriber_URL = environ.get('subscriber_URL') or "http://localhost:8000/subscribers/subscriptions/{screening_id}"
+    seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/seats/{screening_id}"
+    refund_seat_URL = environ.get('refund_seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/refund"
+    booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
+    booking_URL_refund = environ.get('booking_URL_refund') or "http://127.0.0.1:5001/bookings/{booking_id}/refund"
+    subscriber_URL = environ.get('subscriber_URL') or "http://127.0.0.1:5003/subscribers/subscriptions/{screening_id}"
 
     try:
         print('\n-----Invoking bookings microservice for refund-----')
