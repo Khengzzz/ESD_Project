@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to fetch screening data from the server
     function fetchScreeningData(screeningId) {
         console.log(screeningId)
-        fetch(`http://127.0.0.1:5000/screenings/seats/1`)
+        fetch(`http://localhost:8000/screenings/seats/1`)
             .then(response => response.json())
             .then(data => {
                 console.log(data.data); // Log the data to console (for testing)

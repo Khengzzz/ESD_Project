@@ -19,8 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("hi")
                 console.log(data.data.seats); 
                 dbSeats=data.data.seats;// Log the data to console (for testing)
-                const screeningDataElement = document.getElementById('screeningData');
-                screeningDataElement.innerText=data.data.seats;
                 updateUI(seats,dbSeats)
                 return data.data.seats;
             })
@@ -53,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     seatElement.classList.add("reserved"); 
                 }
             }
-            document.getElementById("taken").textContent=seatTaken
+            
             
         });
 
@@ -88,13 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
-
-        // const selectedMovieIndex = localStorage.getItem("selectedMovieIndex");
-
-        // if (selectedMovieIndex !== null) {
-        //     movieSelect.selectedIndex = selectedMovieIndex;
-        //     console.log(selectedMovieIndex);
-        // }
     }
 
     // Function to update selected count
@@ -147,21 +138,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial count and total set
     updateSelectedCount();
 
-    // Save selected movie index and price
-    // function setMovieData(movieIndex, moviePrice) {
-    //     // localStorage.setItem("selectedMovieIndex", movieIndex);
-    //     localStorage.setItem("selectedMoviePrice", moviePrice);
-    // }
-
-    //call usr id, when user pressbutton it will call booking orchestrator, if successful redirect user to payment page
-    // function userClicksPayment(){
-    //     userid=localStorage.getItem("userid")
-    //     cost= selectedSeatsCount * ticketPrice;
-    //     //call booking orchestrator
-    //     console.log(userid)
-    //     console.log("button pressed " +cost)
-
-        
-    // }
-
+   
 });
