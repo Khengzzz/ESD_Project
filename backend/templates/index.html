@@ -125,23 +125,14 @@
     <div class="container-fluid">
       <div class="greeting">
           <div>
-            <p class="first-paragraph">Hi, User 1<span> &#128075;</span></p>
-            <p><span style="font-weight: bold; font-size: 1.5em;">Welcome back</span></p>
+            <p class="first-paragraph">Hi, User <span id="uid"><span><span> &#128075;</span></p>
+            <p><span style="font-weight: bold; font-size: 1.5em;">Welcome Back</span></p>
           </div>
-          <div class="notification-bell">
-              <button class="btn btn-outline-primary" type="button" id="notificationButton">
-                  <img src="../static/images/notification.png" alt="Notification Bell" width="30" height="30">
-              </button>
-          </div>
-      </div>
-      
-      <div class="search-bar-container">
-        <input class="form-control search-bar" type="search" placeholder="&#x1F50D;  Search" aria-label="Search">
       </div>
       
       <!-- Now Showing and See All container -->
       <div class="now-showing-container">
-        <h1 class="now-showing">Now Showing <a href="#" class="see-all">See all ></a></h1>
+        <h1 class="now-showing">Now Showing </h1>
       </div>
   </header>
 
@@ -157,7 +148,7 @@
           </div>
         </div>
         <div class="carousel-item">
-          <img src="images/batmanvssuperman.jpg" class="d-block w-100" alt="...">
+          <img src="{{ url_for('static', filename='images/batmanvssuperman.jpg') }}" class="d-block w-100" alt="...">
           <div class="movie-details">
             <p class="movie-title">Batman V Superman</p>
             <p>2h31m . Action, Sci-fi</p>
@@ -165,7 +156,7 @@
           </div>
         </div>
         <div class="carousel-item">
-          <img src="images/guardianofthegalaxy.jpg" class="d-block w-100" alt="...">
+          <img src="{{ url_for('static', filename='images/guardianofthegalaxy.jpg') }}" class="d-block w-100" alt="...">
           <div class="movie-details">
             <p class="movie-title">Guardians of the Galaxy</p>
             <p>2h17m . Action, Sci-fi</p>
@@ -230,7 +221,7 @@
         <!-- Card 4 -->
         <div class="col-3">
           <div class="card">
-            <a href="screening/2">
+            <a href="screening/3">
             <img src="{{ url_for('static', filename='../static/images/elvis.jpg') }}" class="card-img-top" alt="...">
               <h5 class="card-title">Elvis</h5>
               <p class="card-text">Musical, Drama</p>
@@ -250,11 +241,11 @@
   <div>click here</div>
   <!-- Bottom Navbar -->
   <nav class="bottom-navbar">
-    <a href="#">
+    <a href="/">
       <i class="fas fa-home"></i>
       <span>Home</span>
     </a>
-    <a href="tickets.html">
+    <a href="/my_purchase">
       <i class="fas fa-ticket-alt"></i>
       <span>Ticket</span>
     </a>
@@ -271,13 +262,10 @@
   <!-- Bootstrap JS and your JavaScript code here -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-  <!-- JavaScript -->
   <script>
-    
-    document.getElementById("notificationButton").addEventListener("click", function() {
-      // Code to display notifications
-      alert("Notifications clicked!");
-    });
+    var userId = localStorage.getItem("userid")
+    // Set ID of logged in user in greeting message dynamically
+    document.getElementById("uid").innerHTML = userId
   </script>
 </body>
 </html>
