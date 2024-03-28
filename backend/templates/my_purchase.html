@@ -50,16 +50,28 @@
         justify-content: center;
         align-items: center;
     }
+    .back_btn {
+        margin-left: 15px;
+        margin-top: 15px;
+    }
+
     </style>
 </head>
 <body>
     <div class="row header-row">
-        <h1>My Ticket</h1>
+        <div class="col-auto">
+            <a href="http://localhost:8000/"><button class="btn btn-secondary back_btn"><i class="fas fa-arrow-left"></i> Back</button></a>
+        </div>
+        <div class="col">
+            <h1>My Purchase</h1>
+        </div>
     </div>
     <div class="ticket-container" id="ticket-container">
+        <!-- Ticket contents will be displayed here -->
     </div>
 
     <script>
+
         // Format the date and time string
         function convertDateTime(datetimeString) {
             var datetime = new Date(datetimeString);
@@ -78,7 +90,7 @@
 
         // Function to fetch and display bookings for a specific user
         function fetchBookings(userId) {
-            fetch(`http://127.0.0.1:5103/purchase/${userId}`)
+            fetch(`http://localhost:8000/purchase/${userId}`)
             .then(response => response.json())
             .then(data => {
                 bookingHTML = "";
@@ -95,7 +107,7 @@
                                     <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Hall ${details.hall_number}</span></p>
                                     <p><strong>Booking ID:</strong> <span class="icon-text">${details.booking_id}</span></p>
                                     <p><strong>Seat:</strong> <span class="icon-text">${details.seat_id.join(', ')}</span>
-                                    <form class="refund-form" action="http://127.0.0.1:5102/refund/${details.booking_id}" method="post">
+                                    <form class="refund-form" action="http://localhost:8000/refund/${details.booking_id}" method="post">
                                         <button type="submit" class="btn btn-danger refund-button">Refund</button>
                                     </form>
                                     </p>
