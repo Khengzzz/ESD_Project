@@ -8,7 +8,6 @@
   <title>Select Seat - Movie Seat Booking</title>
 </head>
 <script>
-
   function userClicksPayment(){
     bookingId=""
     userId=parseInt(localStorage.getItem("userid"))
@@ -28,7 +27,7 @@
     });
     
 
-    fetch(`http://localhost:8000/create_booking`,
+    fetch(`http://localhost:5100/create_booking`,
         {
             method: "POST",
             headers: {
@@ -44,7 +43,7 @@
             
 
             console.log(bookingId)
-            fetch(`http://localhost:8000/create_booking`, {
+            fetch(`http://localhost:5100/create_booking`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
@@ -59,7 +58,28 @@
 
                   console.log(bookingId);
 
-                  window.location.href = 'http://localhost:8000/payment?booking_id=' + encodeURIComponent(bookingId) + '&quantity=' + encodeURIComponent(no_of_tix);
+                  window.location.href = 'http://localhost:5101/payment?booking_id=' + encodeURIComponent(bookingId) + '&quantity=' + encodeURIComponent(no_of_tix);
+                  // Chain the next fetch request here
+              //     return fetch(`http://localhost:5101/payment`, {
+              //         method: "POST",
+              //         headers: {
+              //             "Content-type": "application/json"
+              //         },
+              //         body: JSON.stringify({
+              //             "booking_id": bookingId,
+              //             "quantity": no_of_tix
+              //         })
+              //     });
+              // })
+              // .then(response => response.json())
+              // .then(data => {
+              //   console.log("its here")
+              //     console.log(data);
+              //     result = data.data;
+              // })
+        //       .catch(error => {
+        //           console.error('Error during fetch:', error);
+        //       });
         })
 
   })}
@@ -70,79 +90,76 @@
   <h1>Select Seat</h1>
 
   <div class="container">
-    <div class="col-auto">
-      <a href="http://localhost:8000/"><button class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</button></a>
-    </div>
-
+    
     <div class="screen"></div>
     <div class="row">
       <!-- Row A -->
-      <div class="seat" id="1">1</div>
-      <div class="seat" id="2">2</div>
-      <div class="seat" id="3">3</div>
-      <div class="seat" id="4">4</div>
-      <div class="seat" id="5">5</div>
-      <div class="seat" id="6">6</div>
-      <div class="seat" id="7">7</div>
-      <div class="seat" id="8">8</div>
-      <div class="seat" id="9">9</div>
-      <div class="seat" id="10">10</div>
+      <div class="seat" id="1">A1</div>
+      <div class="seat" id="2">A2</div>
+      <div class="seat" id="3">A3</div>
+      <div class="seat" id="4">A4</div>
+      <div class="seat" id="5">A5</div>
+      <div class="seat">A6</div>
+      <div class="seat">A7</div>
+      <div class="seat">A8</div>
+      <div class="seat">A9</div>
+      <div class="seat">A10</div>
     </div>
 
     <div class="row">
       <!-- Row B -->
-      <div class="seat" id="11">11</div>
-      <div class="seat" id="12">12</div>
-      <div class="seat" id="13">13</div>
-      <div class="seat" id="14">14</div>
-      <div class="seat" id="15">15</div>
-      <div class="seat" id="16">16</div>
-      <div class="seat" id="17">17</div>
-      <div class="seat" id="18">18</div>
-      <div class="seat" id="19">19</div>
-      <div class="seat" id="20">20</div>
+      <div class="seat">B11</div>
+      <div class="seat">B12</div>
+      <div class="seat">B13</div>
+      <div class="seat">B14</div>
+      <div class="seat">B15</div>
+      <div class="seat">B16</div>
+      <div class="seat">B17</div>
+      <div class="seat">B18</div>
+      <div class="seat">B19</div>
+      <div class="seat">B20</div>
     </div>
 
     <div class="row">
       <!-- Row C -->
-      <div class="seat" id="21">21</div>
-      <div class="seat" id="22">22</div>
-      <div class="seat" id="23">23</div>
-      <div class="seat" id="24">24</div>
-      <div class="seat" id="25">25</div>
-      <div class="seat" id="26">26</div>
-      <div class="seat" id="27">27</div>
-      <div class="seat" id="28">28</div>
-      <div class="seat" id="29">29</div>
-      <div class="seat" id="30">30</div>
+      <div class="seat">C21</div>
+      <div class="seat">C22</div>
+      <div class="seat">C23</div>
+      <div class="seat">C24</div>
+      <div class="seat">C25</div>
+      <div class="seat">C26</div>
+      <div class="seat">C27</div>
+      <div class="seat">C28</div>
+      <div class="seat">C29</div>
+      <div class="seat">C30</div>
     </div>
 
     <div class="row">
       <!-- Row D -->
-      <div class="seat" id="31">31</div>
-      <div class="seat" id="32">32</div>
-      <div class="seat" id="33">33</div>
-      <div class="seat" id="34">34</div>
-      <div class="seat" id="35">35</div>
-      <div class="seat" id="36">36</div>
-      <div class="seat" id="37">37</div>
-      <div class="seat" id="38">38</div>
-      <div class="seat" id="39">39</div>
-      <div class="seat" id="40">40</div>
+      <div class="seat">D31</div>
+      <div class="seat">D32</div>
+      <div class="seat">D33</div>
+      <div class="seat">D34</div>
+      <div class="seat">D35</div>
+      <div class="seat">D36</div>
+      <div class="seat">D37</div>
+      <div class="seat">D38</div>
+      <div class="seat">D39</div>
+      <div class="seat">D40</div>
     </div>
 
     <div class="row">
       <!-- Row E -->
-      <div class="seat" id="41">41</div>
-      <div class="seat" id="42">42</div>
-      <div class="seat" id="43">43</div>
-      <div class="seat" id="44">44</div>
-      <div class="seat" id="45">45</div>
-      <div class="seat" id="46">46</div>
-      <div class="seat" id="47">47</div>
-      <div class="seat" id="48">48</div>
-      <div class="seat" id="49">49</div>
-      <div class="seat" id="50">50</div>
+      <div class="seat">E41</div>
+      <div class="seat">E42</div>
+      <div class="seat">E43</div>
+      <div class="seat">E44</div>
+      <div class="seat">E45</div>
+      <div class="seat">E46</div>
+      <div class="seat">E47</div>
+      <div class="seat">E48</div>
+      <div class="seat">E49</div>
+      <div class="seat">E50</div>
     </div>
 
     <!-- Add more rows if necessary -->
@@ -185,7 +202,7 @@
     // Subscribe Methods
     // Function to fetch and subscribers for a specific screening
     function fetchSubscribers(screeningId, userId) {
-      fetch(`http://localhost:8000/subscribers/subscriptions/${screeningId}`)
+      fetch(`http://127.0.0.1:5003/subscribers/subscriptions/${screeningId}`)
       .then(response => response.json())
       .then(data => {
         console.log(data);
@@ -223,7 +240,7 @@
     function subscribeUser(screening_id) {
         // Update the HTML content of the subscribeDisplay div
         document.getElementById("subscribeDisplay").innerHTML = `
-            <form id="subscriptionForm" action="http://localhost:8000/subscribers/subscribe?screening_id=${screening_id}&user_id=${userId}&email=${email}" class="subscribe-form" method="post">
+            <form id="subscriptionForm" action="http://127.0.0.1:5003/subscribers/subscribe?screening_id=${screening_id}&user_id=${userId}&email=${email}" class="subscribe-form" method="post">
               <input type="hidden" name="redirect" value="${window.location.href}"> 
               <button id="subscribe-btn" type="submit" class="btn btn-outline-primary subscribe-btn">Subscribe</button>
             </form>
@@ -252,7 +269,7 @@
     function unsubscribeUser(screening_id) {
       // Update the HTML content of the subscribeDisplay div
       document.getElementById("subscribeDisplay").innerHTML = `
-          <form id="subscriptionForm" action="http://localhost:8000/subscribers/unsubscribe?screening_id=${screening_id}&user_id=${userId}" class="subscribe-form" method="delete">
+          <form id="subscriptionForm" action="http://127.0.0.1:5003/subscribers/unsubscribe?screening_id=${screening_id}&user_id=${userId}" class="subscribe-form" method="delete">
             <input type="hidden" name="redirect" value="${window.location.href}"> 
             <button id="subscribe-btn" type="submit" class="btn btn-outline-primary subscribe-btn">Unsubscribe</button>
           </form>

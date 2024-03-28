@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
   screeningIdElement.innerText = 'Screening ID: ' + screeningId;
 
   function fetchScreeningData(screeningId) {
-      fetch(`http://localhost:8000/screenings/seats/${screeningId}`)
+      fetch(`http://127.0.0.1:5000/screenings/seats/${screeningId}`)
       .then(response => response.json())
       .then(data => {
           console.log(data.data); // Log the data to console (for testing)

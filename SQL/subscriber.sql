@@ -19,6 +19,14 @@ CREATE TABLE IF NOT EXISTS `subscriber` (
   PRIMARY KEY (`screening_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO `subscriber` (`screening_id`, `user_id`, `user_email`) VALUES
+(1, 1, 'kheng_hin@yahoo.com'),
+(1, 2, 'ritikab.2022@scis.smu.edu.sg'),
+(3, 3, 'ritika.bajpai17@gmail.com'),
+(3, 1, 'kheng_hin@yahoo.com'),
+(3, 4, 'khsiew.2022@scis.smu.edu.sg');
+
+
 
 COMMIT;
 

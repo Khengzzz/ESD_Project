@@ -138,9 +138,9 @@ def processPayment():
 
 # Function to update seat and booking status after successful payment
 def updateOrder(booking_id, charge_object):
-    seat_URL = environ.get('seat_URL') or "http://localhost:8000/screenings/manage_seats/{screening_id}/book"
-    booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://localhost:8000/bookings/{booking_id}"
-    booking_URL_confirm = environ.get('booking_URL_confirm') or "http://localhost:8000/bookings/{booking_id}/confirm"
+    seat_URL = environ.get('seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/book"
+    booking_URL_get_booking = environ.get('booking_URL_get_booking') or "http://127.0.0.1:5001/bookings/{booking_id}"
+    booking_URL_confirm = environ.get('booking_URL_confirm') or "http://127.0.0.1:5001/bookings/{booking_id}/confirm"
     
     try:
         print('\n-----Invoking bookings microservice-----')
@@ -186,8 +186,8 @@ def updateOrder(booking_id, charge_object):
 # Route handler to handle cancellation of a booking before payment, reverting the seats to 'Available' and booking status to 'Cancelled'
 @app.route("/payment/cancel/<booking_id>", methods=['POST'])
 def cancel_payment(booking_id):
-    revert_seat_URL = environ.get('revert_seat_URL') or "http://localhost:8000/screenings/manage_seats/{screening_id}/revert"
-    booking_URL_cancel = environ.get('booking_URL_cancel') or "http://localhost:8000/bookings/{booking_id}/cancel"
+    revert_seat_URL = environ.get('revert_seat_URL') or "http://127.0.0.1:5000/screenings/manage_seats/{screening_id}/revert"
+    booking_URL_cancel = environ.get('booking_URL_cancel') or "http://127.0.0.1:5001/bookings/{booking_id}/cancel"
     
     try:
         print('\n-----Invoking bookings microservice-----')
@@ -206,8 +206,10 @@ def cancel_payment(booking_id):
         seat_result = invoke_http(revert_seat_URL, method='PUT', json={"seats": seat_ids})
         print('Seat update result:', seat_result)
 
-        if seat_result:
-            return render_template('cancelled.html')
+        return {
+            "code": 200,
+            "message": "Revert processed successfully"
+        }
 
     except Exception as e:
         print("An error occurred:", e)
