@@ -33,7 +33,7 @@ services:
           - DELETE
           - POST
 
-  - name: bookingOrchestrator
+  - name: booking_orchestrator
     url: http://booking_orchestrator:5100/create_booking
     routes:
       - name: bookingOrchestrator1
