@@ -38,22 +38,16 @@
    
     <h1 style="padding: 30px;">Payment</h1>
     <div class="container">
+        <h1>Payment Details</h1>
+
         <div class="row">
             <div class="col-4 col-img">
-                <img src="images/avengers.jpg" alt="Avengers Image" class="img-fluid" style="height: 80%;"/>
+
             </div>
             <div class="col-8">
-                <h4 style="color: rgb(249, 182, 13);"><strong>Avengers: Infinity War</strong></h4>
-                {{ total_amount }}
-                {{booking_id}}
-                <hr>
-                <p><i class="fas fa-film"></i> <span class="icon-text">Action, Adventure, Sci-fi</span></p>
-                <p><i class="fas fa-map-marker-alt"></i> <span class="icon-text">Cinema Hall 1</span></p>
-                <p><i class="far fa-clock"></i> <span class="icon-text">April 2nd, 2024 - 4:30 PM</span></p>
-                <p><strong>Booking ID:</strong> <span class="align-right">FHE9894230</span></p>
-                <p><strong>Seat:</strong> <span class="align-right">1, 2, 3, 4</span></p>
-                <hr>
-                <h4><strong>Total:</strong><span class="align-right" style="color: rgb(249, 182, 13);"><strong>${{ total_amount }}, {{}}</strong></span></h4>
+                <p><strong>Booking ID:</strong> <span class="align-right">{{booking_id}}</span></p>
+                <h4><strong>Total:</strong><span class="align-right" style="color: rgb(249, 182, 13);"><strong>${{total_amount}}</strong></span></h4>
+                <strong>${{'%.2f' % displayed_amt}}</strong></span></h4>
             </div>
         </div>
         <div class="row">
@@ -62,12 +56,12 @@
             </div>
             <div class="col text-end"> <!-- added style display inline for both forms and changes to bootstrap button class -->
                 <form action="payment/charge" method="post" style="display:inline">
-                    <input type="hidden" name="amount" value="{{total_amount}}"> <!-- Amount in cents (15 SGD * 100) -->
+                    <input type="hidden" name="amount" value={{total_amount}}> <!-- Amount in cents (15 SGD * 100) -->
                     <input type="hidden" name="currency" value="sgd"> <!-- Currency is SGD -->
-                    <input type="hidden" name="booking_id" value="{{booking_id}}">
+                    <input type="hidden" name="booking_id" value={{booking_id}}>
                     <script
                         src="https://checkout.stripe.com/checkout.js" class="stripe-button "
-                        data-key="pk_test_51OrGR4EaG7MlgHzNQwricleoYjYmbA8G5CJnfChOL2Y46OlsUX7Gr8yhrgJ2iEsk0fS8zCTS3fNUihatUXr2S8aO00sEfiF6Sf"
+                        data-key="pk_test_51OoQM4Db6e0xe0n3BuJCa1Mt8BUPJCweoQztG5RnKJ4RulsyhNRmQGMB97P4Vvet19yV8DrL4XgcjiWxSLGUqYp400zi3CccES"
                         data-amount="{{total_amount}}"
                         data-name="Starlight Cinema"
                         data-description="Payment"

@@ -9,13 +9,15 @@
 </head>
 <script>
   function userClicksPayment(){
+    bookingId=""
     userId=parseInt(localStorage.getItem("userid"))
     console.log(userId)
-    email=localStorage.getItem("email")
-    console.log(email)
     selectedSeatsString=localStorage.getItem("selectedSeats")
     const selectedSeatsArray = JSON.parse(selectedSeatsString);
+    
     console.log(selectedSeatsArray)
+
+    no_of_tix = selectedSeatsArray.length
     screening_id_text=document.getElementById("screeningId").innerText
     const screening_id = parseInt(screening_id_text);
     let jsonData = JSON.stringify({
@@ -35,35 +37,52 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
-            result = data.data;
-            bookingId = data.data
+          console.log(data.code)
+            code=data.code;
+            bookingId = data.booking_details.data.booking_id;
+            
 
+            console.log(bookingId)
+            fetch(`http://localhost:5100/create_booking`, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: jsonData
         })
-        //send to payment page
-        .then(
-          
-    //       fetch(`http://localhost:5101/payment`,
-    //     {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-type": "application/json"
-    //         },
-    //         body:   JSON.stringify({
-    //       "user_id": 2,
-    //       "screening_id": 1,
-    //       "seat_ids": [4]
-    // })
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data);
-    //         result = data.data;
-    //     })
+              .then(response => response.json())
+              .then(data => {
+                  console.log(data.code);
+                  code = data.code;
+                  bookingId = data.booking_details.data.booking_id;
 
-        )
+                  console.log(bookingId);
 
-  }
+                  window.location.href = 'http://localhost:5101/payment?booking_id=' + encodeURIComponent(bookingId) + '&quantity=' + encodeURIComponent(no_of_tix);
+                  // Chain the next fetch request here
+              //     return fetch(`http://localhost:5101/payment`, {
+              //         method: "POST",
+              //         headers: {
+              //             "Content-type": "application/json"
+              //         },
+              //         body: JSON.stringify({
+              //             "booking_id": bookingId,
+              //             "quantity": no_of_tix
+              //         })
+              //     });
+              // })
+              // .then(response => response.json())
+              // .then(data => {
+              //   console.log("its here")
+              //     console.log(data);
+              //     result = data.data;
+              // })
+        //       .catch(error => {
+        //           console.error('Error during fetch:', error);
+        //       });
+        })
+
+  })}
 
 </script>
 
