@@ -3,11 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from os import environ
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/subscriber'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
+metrics = PrometheusMetrics(app)
 
 db = SQLAlchemy(app)
 
@@ -149,4 +151,4 @@ def unsubscribe_user():
         ), 400
     
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5003, debug=True)
+    app.run(host="0.0.0.0", port=5003, debug=False)

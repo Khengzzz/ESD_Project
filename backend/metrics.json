@@ -19,6 +19,24 @@
     },
     {
       "targets": [
+        "bookings:5001"
+      ],
+      "labels": {
+        "env": "dev",
+        "job": "docker"
+      }
+    },
+    {
+      "targets": [
+        "subscriber:5003"
+      ],
+      "labels": {
+        "env": "dev",
+        "job": "docker"
+      }
+    },
+    {
+      "targets": [
         "booking_orchestrator:5100"
       ],
       "labels": {
@@ -38,6 +56,15 @@
     {
       "targets": [
         "refund_orchestrator:5102"
+      ],
+      "labels": {
+        "env": "dev",
+        "job": "docker"
+      }
+    },
+    {
+      "targets": [
+        "my_purchase_orchestrator:5103"
       ],
       "labels": {
         "env": "dev",

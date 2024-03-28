@@ -1,0 +1,80 @@
+_format_version: "1.1"
+
+services:
+  - name: screening
+    url: http://screening:5000/screenings
+    routes:
+      - name: screening1
+        paths:
+          - /screenings
+        methods:
+          - GET
+          - PUT
+
+  - name: booking
+    url: http://bookings:5001/bookings
+    routes:
+      - name: booking1
+        paths:
+          - /bookings
+        methods:
+          - GET
+          - PUT
+          - POST
+
+  - name: subscriber
+    url: http://subscriber:5003/subscribers
+    routes:
+      - name: subscriber1
+        paths:
+          - /subscribers
+        methods:
+          - GET
+          - DELETE
+          - POST
+
+  - name: bookingOrchestrator
+    url: http://booking_orchestrator:5100/create_booking
+    routes:
+      - name: bookingOrchestrator1
+        paths:
+          - /create_booking
+        methods:
+          - POST
+
+  - name: payment_orchestrator
+    url: http://payment_orchestrator:5101/payment
+    routes:
+      - name: payment_orchestrator1
+        paths:
+          - /payment
+        methods:
+          - GET
+          - POST
+
+  - name: refund_orchestrator
+    url: http://refund_orchestrator:5102/refund
+    routes:
+      - name: refund_orchestrator1
+        paths:
+          - /refund
+        methods:
+          - POST
+
+  - name: my_purchase_orchestrator
+    url: http://my_purchase_orchestrator:5103/purchase
+    routes:
+      - name: my_purchase_orchestrator1
+        paths:
+          - /purchase
+        methods:
+          - GET
+
+  - name: frontend
+    url: http://app:1234/
+    routes:
+      - name: frontend1
+        paths:
+          - /
+        methods:
+          - GET

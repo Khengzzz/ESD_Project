@@ -4,9 +4,11 @@ import os, sys
 from invokes import invoke_http
 from os import environ
 import json
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
 CORS(app)
+metrics = PrometheusMetrics(app)
 
 # Route handler to retrieve the purchase list of a particular user
 @app.route("/purchase/<user_id>", methods=['GET'])
@@ -47,4 +49,4 @@ def retrieve_purchase(user_id):
 
 if __name__ == "__main__":
     print("This is booking orchestrator...")
-    app.run(host="0.0.0.0", port=5103, debug=True)
+    app.run(host="0.0.0.0", port=5103, debug=False)

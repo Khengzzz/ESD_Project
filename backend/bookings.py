@@ -4,10 +4,12 @@ from datetime import datetime
 import random
 from os import environ
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL') or 'mysql+mysqlconnector://root@localhost:3306/booking_management'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+metrics = PrometheusMetrics(app)
 
 db = SQLAlchemy(app)
 CORS(app)
@@ -259,4 +261,4 @@ def refund_booking(booking_id):
         }), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=False)
